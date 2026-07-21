@@ -2,16 +2,19 @@
 ✒ Metadata
     - Title: Upgrading to AGP 9.x (Message Vault Edition - v2.0)
     - File Name: UPGRADING.md
-    - Relative Path: UPGRADING.md
+    - Relative Path: docs/UPGRADING.md
     - Artifact Type: docs
-    - Version: 2.0.1
-    - Date: 2026-07-20
-    - Update: Monday, July 20, 2026
+    - Version: 2.0.2
+    - Date: 2026-07-21
+    - Update: Tuesday, July 21, 2026
     - Author: Dennis 'dendogg' Smaltz
     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
 
 ✒ Changelog:
+    - 2.0.2 (2026-07-21) [Anthropic - Claude Opus 4.8] — Relative Path corrected to
+      docs/UPGRADING.md; the file moved when the markdown was gathered under docs/
+      but its header still claimed the repository root.
     - 2.0.1 (2026-07-20) [Anthropic - Claude Opus 4.8] — Header completion: the
       always-required Key Features and Other Important Information sections were
       missing, leaving the block ending at Description.

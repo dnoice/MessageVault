@@ -4,14 +4,19 @@
     - File Name: README.md
     - Relative Path: README.md
     - Artifact Type: docs
-    - Version: 3.0.0
-    - Date: 2026-07-20
-    - Update: Monday, July 20, 2026
+    - Version: 3.1.0
+    - Date: 2026-07-21
+    - Update: Tuesday, July 21, 2026
     - Author: Dennis 'dendogg' Smaltz
     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
 
 ✒ Changelog:
+    - 3.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Leads with the hero plate and
+      the Preserve / Browse / Seal line. Adds a Documentation table pointing at the
+      architecture walkthrough, the style charter and the upgrade path. Repairs the two
+      links the markdown move broke: ARCHITECTURE.md and UPGRADING.md now resolve under
+      docs/ instead of 404ing at the repository root.
     - 3.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — v1.0.0 release rewrite.
       Documents the app as it actually ships: the Home destination, the foreground
       ExportService with progress/cancel notifications, the vault (app lock, screen
@@ -61,9 +66,13 @@
 
 # digiSpace · Message Vault
 
+![Message Vault — personal SMS/MMS archival for Android. Preserve, Browse, Seal.](docs/assets/readme-hero-image.png)
+
 A personal, sideloaded Android app that exports your own SMS/MMS history off the
 device into durable, queryable formats — reads it back on-device — and can seal a
 run into a passphrase-encrypted envelope before it ever leaves the phone.
+
+**Preserve · Browse · Seal.**
 
 Built for a real corpus: 50,000+ messages and several hundred megabytes of
 attachments. A single streaming pass fans out to every selected output, and
@@ -282,7 +291,7 @@ JBR, and a device on Android 10 (API 29) or newer.
 1. Open the project in Android Studio and let Gradle sync. The project ships
    pinned to **AGP 8.13.2 / Gradle 8.13 / Kotlin 2.1.0 / Compose BOM 2024.12.01 /
    navigation-compose 2.8.5**, JDK 21, compileSdk and targetSdk 35, minSdk 29 — a
-   deliberate, known-good island. See [UPGRADING.md](UPGRADING.md) before touching
+   deliberate, known-good island. See [docs/UPGRADING.md](docs/UPGRADING.md) before touching
    the toolchain.
 2. Connect the device (USB or wireless debugging), select it, and Run. The debug
    build carries the `.debug` application-id suffix so it can coexist with a
@@ -350,7 +359,17 @@ Two invariants hold the whole thing up:
   message out to every selected `Exporter`. A new output format is a new
   `Exporter` plus one line in the engine.
 
-The full guided tour is in [ARCHITECTURE.md](ARCHITECTURE.md).
+The full guided tour is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the
+visual language every screen is held to is [docs/STYLE.md](docs/STYLE.md).
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Guided tour of every module, in dependency order, and how one export run executes end to end. |
+| [docs/STYLE.md](docs/STYLE.md) | The visual charter. Why this reads as an archival instrument and not a messenger, and the rules every screen follows. |
+| [docs/UPGRADING.md](docs/UPGRADING.md) | The pinned AGP 8.x island and what moving to AGP 9.x would involve. |
+| [tools/decrypt_mvault.py](tools/decrypt_mvault.py) | Standalone decryptor for a sealed `.mvault`, so the archive outlives the app. |
 
 ## Known gotchas already handled
 

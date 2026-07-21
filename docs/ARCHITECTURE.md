@@ -4,14 +4,18 @@
     - File Name: ARCHITECTURE.md
     - Relative Path: docs/ARCHITECTURE.md
     - Artifact Type: docs
-    - Version: 3.0.0
-    - Date: 2026-07-20
-    - Update: Monday, July 20, 2026
+    - Version: 3.1.0
+    - Date: 2026-07-21
+    - Update: Tuesday, July 21, 2026
     - Author: Dennis 'dendogg' Smaltz
     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
 
 ✒ Changelog:
+    - 3.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Opens with the Export Machine
+      plate, so the whole pipeline is legible in one frame before the walkthrough takes
+      it at walking pace, with a note on how to read its solid primary flow against the
+      dotted enrichment path.
     - 3.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — v1.0.0 release refresh.
       The walkthrough described a five-package app that now has seven: adds the
       service/ layer (ExportService + the process-wide ExportStatus flow) and the
@@ -53,6 +57,13 @@
 -->
 
 # Message Vault — Architecture Walkthrough
+
+![The Export Machine — Android providers to sources to a normalized Message, through the ArchiveEngine, fanned out to exporters and written as the archive.](assets/architecture-hero-image.png)
+
+The plate above is the whole machine in one frame, and the rest of this document
+is that diagram at walking pace. Solid lines are the primary flow every message
+takes; the dotted line is enrichment — `ContactResolver` decorating a message
+with a name rather than carrying it.
 
 This document is the narrative companion to the per-file header docstrings. The
 headers explain each file in isolation; this explains how they fit together and,
