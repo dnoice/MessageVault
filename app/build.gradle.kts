@@ -120,6 +120,10 @@ dependencies {
     // Vault door: BiometricPrompt with device-credential (PIN/pattern) fallback.
     // Also supplies androidx.fragment, which BiometricPrompt requires of its host.
     implementation(libs.androidx.biometric)
+    // Must be declared explicitly: biometric 1.1.0 pulls fragment 1.2.5, whose
+    // FragmentActivity throws "Can only use lower 16 bits for requestCode" on every
+    // Activity Result launch. This overrides it with a version that doesn't.
+    implementation(libs.androidx.fragment)
     debugImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.kotlinx.coroutines.android)
