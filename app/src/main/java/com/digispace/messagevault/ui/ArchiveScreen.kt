@@ -1,17 +1,19 @@
 /*
  * ✒ Metadata
- *     - Title: Export Screen (Message Vault Edition - v1.0)
+ *     - Title: Export Screen (Message Vault Edition - v2.1)
  *     - File Name: ArchiveScreen.kt
  *     - Relative Path: app/src/main/java/com/digispace/messagevault/ui/ArchiveScreen.kt
  *     - Artifact Type: library
- *     - Version: 1.2.0
- *     - Date: 2026-07-20
- *     - Update: Monday, July 20, 2026
+ *     - Version: 2.1.0
+ *     - Date: 2026-07-21
+ *     - Update: Tuesday, July 21, 2026
  *     - Author: Dennis 'dendogg' Smaltz
  *     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
  *     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
  *
  * ✒ Changelog:
+ *     - 2.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Systemwide consistency pass. This screen's three private treatments were each a twin of something another tab had also invented, so all three are deleted in favour of the shared primitives: FieldPlate (which padded its rows at a raw 2dp, a margin no other tab used) becomes MvFieldPlate, DestinationField becomes MvLocationPlate, and FailureNote becomes MvFailureNote — which also gives Settings a sanctioned in-card crimson instead of the bare crimson sentence it was using. The full-access button is renamed GRANT FULL ACCESS to match the identical operation on Settings, which called it something else in a different casing. Style only.
+ *     - 2.0.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — The archival-instrument pass, applying STYLE.md. The six floating option cards collapse into two ruled manifest plates with a catalogue gutter; the Material Switch, the 44dp icon chips and the Sms/PermMedia/Forum messaging glyphs are gone (sources now carry typographic SMS/MMS marks, formats keep the authored ic_tech_* marks bare in the gutter); every produced artefact is named in monospace in its own column; the capsule bar, gold shimmer, breathing dot and rolling counter are replaced by MvMeter and shown figures; the done card is a hairline receipt with the destination on a recessed plate; partial success drops colorScheme.tertiary for a PARTIAL stamp and a note; phase becomes a stamp in the section header; motion is opacity-only on the two MvMotion clocks; copy moves to operational register.
  *     - 1.2.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Quality-of-life pass: the done card no longer reports an unqualified success when attachments failed to extract — it names the count and says what to do; "Share .zip" is now "Share export", because with Encrypt shared exports on the button hands over a .mvault and the old label promised a file type it did not produce.
  *     - 1.1.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Polish pass: card padding, radii, gaps, widths and the stat-pill / primary-button / section-label treatments now come from the shared UiKit instead of private twins; toggle rows clear the 48dp touch target and expose their state to TalkBack as one labelled control; the progress bar is announced.
  *     - 1.0.5 (2026-07-20) [Anthropic - Claude Opus 4.8] — Guard the run: disable the Run / Run again / Try again buttons with a hint until at least one source and one output format are selected, so an empty run can't be started.
@@ -22,98 +24,59 @@
  *     - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
  *
  * ✒ Description:
- *     The entire user interface, in Jetpack Compose. It stays "dumb" — receiving
- *     state plus callbacks, drawing accordingly, and reporting taps — but is built
- *     for feel: branded Material 3 surfaces with animated transitions between the
- *     idle / running / done / error phases. Use it as the ui layer that MainActivity
- *     feeds; its public API was untouched by the visual overhaul.
+ *     The run screen, in Jetpack Compose. It stays "dumb" — receiving state plus
+ *     callbacks, drawing accordingly, and reporting taps — but it now presents that
+ *     state the way a records system does: what will be archived is a numbered manifest
+ *     of ruled rows, each naming the artefact it produces; what a run is doing is an
+ *     instrument readout; what a run produced is a receipt with the destination path as
+ *     a field of record. Its public API was untouched by the style pass.
  *
  * ✒ Key Features:
- *     - AnimatedContent: cross-fades/slides between phase bodies so the card morphs instead of snapping when a run starts, finishes, or fails.
- *     - animateFloatAsState / animateIntAsState: the progress bar eases toward its target and the processed counter rolls rather than jumping.
- *     - widthIn(max = …) + CenterHorizontally: one centered, capped column that reads intentionally on the Fold's wide inner screen.
- *     - Explicit Card/Surface colors: the palette (parchment surfaces, navy/gold accents) is applied on purpose, with crimson reserved for genuine errors.
- *     - Delivery actions: stat-pill results panel plus Share export / Copy to folder / grant-access controls.
- *     - Honest completion: a run that lost attachments says so in the headline and explains the recovery step, rather than reporting a clean success.
+ *     - Two manifest plates (SOURCES, OUTPUT FORMATS): one bordered plate per group, hairline-divided rows, a shared gutter, and the produced artefact named in monospace under each entry.
+ *     - Inclusion is stated, not switched: MvStateToggle prints INCLUDED / OMITTED in a fixed column, so the chosen set reads as text and never depends on colour.
+ *     - Condition is stamped: IDLE / RUNNING / COMPLETE / PARTIAL / FAILED rides the run card's section rule in every phase, not only on failure.
+ *     - Instrument readout: MvMeter's squared, tick-marked bar plus shown (never eased) figures for progress and processed count.
+ *     - The receipt: MESSAGES / ATTACHMENTS / MISSING / THROUGHPUT as right-aligned monospace field rows, with the destination path selectable on a recessed plate.
+ *     - Warning without hue: a partial run carries a PARTIAL stamp and an MvNote, so it reads identically in both schemes and crimson stays reserved for a genuine failure.
  *
  * ✒ Other Important Information:
- *     - Dependencies: Jetpack Compose (Material 3, animation); com.digispace.messagevault.export.ArchiveConfig.
+ *     - Dependencies: Jetpack Compose (Material 3, animation); com.digispace.messagevault.export.ArchiveConfig; ui/UiKit.kt.
+ *     - Charter: implements STYLE.md. Icons come from MvIcons or the authored ic_tech_* drawables — never from Material's messaging set.
  *     - Compatible platforms: Android (minSdk 29, compileSdk 35), JVM 21.
  * ---------
  */
 package com.digispace.messagevault.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
-import com.digispace.messagevault.ui.theme.Gold
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AttachFile
-import androidx.compose.material.icons.outlined.Forum
-import androidx.compose.material.icons.outlined.PermMedia
-import androidx.compose.material.icons.outlined.Sms
-import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import com.digispace.messagevault.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.digispace.messagevault.R
 import com.digispace.messagevault.export.ArchiveConfig
+import java.util.Locale
 
 @Composable
 fun ArchiveScreen(
@@ -138,19 +101,23 @@ fun ArchiveScreen(
                     .padding(horizontal = MvSpace.ScreenH, vertical = MvSpace.ScreenV),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    Modifier.widthIn(max = MvContentWidth).fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(MvSpace.Section)
-                ) {
-                    if (!hasSmsPermission) {
-                        PermissionCard(onRequestPermission)
-                    } else {
-                        if (!hasAllFilesAccess) AccessCard(enabled = !running, onEnable = onRequestAllFilesAccess)
-                        ConfigCard(state.config, enabled = !running, onConfigChange)
-                        val canRun = with(state.config) {
-                            (includeSms || includeMms) && (jsonl || sqlite || markdown)
+                MvReveal(Modifier.widthIn(max = MvContentWidth).fillMaxWidth()) {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(MvSpace.Section)
+                    ) {
+                        if (!hasSmsPermission) {
+                            PermissionCard(onRequestPermission)
+                        } else {
+                            if (!hasAllFilesAccess) {
+                                AccessCard(enabled = !running, onEnable = onRequestAllFilesAccess)
+                            }
+                            ConfigCard(state.config, enabled = !running, onConfigChange)
+                            val canRun = with(state.config) {
+                                (includeSms || includeMms) && (jsonl || sqlite || markdown)
+                            }
+                            ActionCard(state, canRun, onStart, onCancel, onShareRun, onCopyRun)
                         }
-                        ActionCard(state, canRun, onStart, onCancel, onShareRun, onCopyRun)
                     }
                 }
             }
@@ -158,247 +125,205 @@ fun ArchiveScreen(
     }
 }
 
-/** A branded surface card with a title and content. */
-@Composable
-private fun SectionCard(content: @Composable () -> Unit) {
-    Card(
-        shape = MvShape.Card,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        // Same treatment as MvCard: no shadow, one crisp hairline. See MvCard for why.
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)),
-        modifier = Modifier.fillMaxWidth().animateContentSize(tween(220))
-    ) {
-        Column(Modifier.padding(MvSpace.Card)) { content() }
-    }
-}
+// ── Preconditions ────────────────────────────────────────────────────────────
 
+/**
+ * A precondition, stated rather than pitched. The condition is a stamp on the section
+ * rule and the headline is the condition named in monospace; only the explanation is
+ * prose, because only the explanation is language.
+ */
 @Composable
 private fun PermissionCard(onRequest: () -> Unit) {
-    SectionCard {
-        Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-            CardTitle("Permission needed")
-            Text(
-                "Reading messages requires the SMS permission. You grant it here, " +
-                    "on-device — this is your own sideloaded build.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            MvPrimaryButton("Grant SMS access", onClick = onRequest)
-        }
+    MvCard {
+        MvSectionLabel(
+            "ACCESS",
+            rule = true,
+            trailing = { MvStamp("REQUIRED", tone = MvTone.Flagged) }
+        )
+        Text(
+            "SMS PERMISSION REQUIRED",
+            style = MvType.MonoValue,
+            color = MvInk.Data,
+            modifier = Modifier.semantics { heading() }
+        )
+        Text(
+            "Reading the message store requires the SMS permission. It is granted " +
+                "on-device, to this sideloaded build, and is never sent anywhere.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MvInk.Body
+        )
+        MvPrimaryButton("GRANT SMS ACCESS", onClick = onRequest)
     }
 }
 
 @Composable
 private fun AccessCard(enabled: Boolean, onEnable: () -> Unit) {
-    SectionCard {
-        Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-            CardTitle("Make exports reachable")
-            Text(
-                "Runs currently save inside the app's private storage (Android/data), " +
-                    "which the Files app and OneDrive can't browse. Grant full access to " +
-                    "save them to a visible /sdcard/MessageVault/ folder instead.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            MvPrimaryButton("Enable full access", enabled = enabled, onClick = onEnable)
-        }
+    MvCard {
+        MvSectionLabel(
+            "DESTINATION",
+            rule = true,
+            trailing = { MvStamp("RESTRICTED", tone = MvTone.Flagged) }
+        )
+        Text(
+            "EXPORT FOLDER NOT BROWSABLE",
+            style = MvType.MonoValue,
+            color = MvInk.Data,
+            modifier = Modifier.semantics { heading() }
+        )
+        Text(
+            "Runs currently save inside the app's private storage (Android/data), which " +
+                "the Files app and OneDrive cannot browse. Full access writes them to a " +
+                "visible /sdcard/MessageVault/ folder instead.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MvInk.Body
+        )
+        // Named identically to the same operation on Settings, which called it
+        // "Grant full access". One operation, one name, one casing.
+        MvPrimaryButton("GRANT FULL ACCESS", enabled = enabled, onClick = onEnable)
     }
 }
 
+// ── The manifest ─────────────────────────────────────────────────────────────
+
+/**
+ * What the run will archive, as two numbered manifests rather than six floating cards.
+ * Six independently bordered soft rects in a scroll is the app-store idiom; one bordered
+ * plate of hairline-divided rows forces the marks, names and produced artefacts into
+ * columns, which is what makes a selection set read as a record instead of a settings pane.
+ */
 @Composable
 private fun ConfigCard(
     config: ArchiveConfig,
     enabled: Boolean,
     onChange: ((ArchiveConfig) -> ArchiveConfig) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-        GroupLabel("SOURCES")
-        OptionCard(
-            icon = { Icon(Icons.Outlined.Sms, null, Modifier.size(24.dp), tint = it) },
-            title = "SMS",
-            subtitle = "Text messages",
-            checked = config.includeSms, enabled = enabled
-        ) { v -> onChange { it.copy(includeSms = v) } }
-        OptionCard(
-            icon = { Icon(Icons.Outlined.PermMedia, null, Modifier.size(24.dp), tint = it) },
-            title = "MMS",
-            subtitle = "Picture & group messages, with attachments",
-            checked = config.includeMms, enabled = enabled
-        ) { v -> onChange { it.copy(includeMms = v) } }
+    val sources = listOf(config.includeSms, config.includeMms).count { it }
+    val formats = listOf(config.jsonl, config.sqlite, config.markdown, config.extractAttachments)
+        .count { it }
 
-        Spacer(Modifier.height(MvSpace.Item))
-        GroupLabel("OUTPUT FORMATS")
-        OptionCard(
-            icon = { Icon(painterResource(R.drawable.ic_tech_jsonl), null, Modifier.size(24.dp), tint = it) },
-            title = "JSONL",
-            subtitle = "messages.jsonl — one object per line",
-            checked = config.jsonl, enabled = enabled
-        ) { v -> onChange { it.copy(jsonl = v) } }
-        OptionCard(
-            icon = { Icon(painterResource(R.drawable.ic_tech_sqlite), null, Modifier.size(24.dp), tint = it) },
-            title = "SQLite",
-            subtitle = "archive.db — queryable database",
-            checked = config.sqlite, enabled = enabled
-        ) { v -> onChange { it.copy(sqlite = v) } }
-        OptionCard(
-            icon = { Icon(painterResource(R.drawable.ic_tech_markdown), null, Modifier.size(24.dp), tint = it) },
-            title = "Markdown",
-            subtitle = "One readable transcript per conversation",
-            checked = config.markdown, enabled = enabled
-        ) { v -> onChange { it.copy(markdown = v) } }
-        OptionCard(
-            icon = { Icon(Icons.Outlined.AttachFile, null, Modifier.size(24.dp), tint = it) },
-            title = "Extract attachments",
-            subtitle = "Decode MMS media to real files",
-            checked = config.extractAttachments, enabled = enabled
-        ) { v -> onChange { it.copy(extractAttachments = v) } }
-    }
-}
+    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Section)) {
+        ManifestCard("SOURCES", ordinal = 1, selected = sources, total = 2) {
+            ManifestRow(
+                mark = { TypographicMark("SMS") },
+                title = "Text messages",
+                output = null,
+                checked = config.includeSms, enabled = enabled
+            ) { v -> onChange { it.copy(includeSms = v) } }
+            ManifestRow(
+                mark = { TypographicMark("MMS") },
+                title = "Picture and group messages",
+                output = null,
+                checked = config.includeMms, enabled = enabled, rule = false
+            ) { v -> onChange { it.copy(includeMms = v) } }
+        }
 
-/**
- * One export option as its own card: technology mark, name, what it produces, and a
- * switch. The whole card is a single toggleable control — comfortably past the touch
- * target, and a screen reader hears one switch named by its title rather than a pile of
- * loose fragments. A selected card carries the accent in its border, icon chip and tint,
- * so the chosen set is legible at a glance instead of by reading six switch positions.
- *
- * @param icon receives the colour to tint with, which differs by selected state.
- */
-@Composable
-private fun OptionCard(
-    icon: @Composable (Color) -> Unit,
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    enabled: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    val accent = MaterialTheme.colorScheme.primary
-    val border by animateColorAsState(
-        if (checked) accent.copy(alpha = 0.55f)
-        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
-        tween(220), label = "optionBorder"
-    )
-    val fill by animateColorAsState(
-        if (checked) accent.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface,
-        tween(220), label = "optionFill"
-    )
-    val chip by animateColorAsState(
-        if (checked) accent.copy(alpha = 0.14f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-        tween(220), label = "optionChip"
-    )
-    val iconTint = if (checked) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-
-    Card(
-        shape = MvShape.Card,
-        colors = CardDefaults.cardColors(containerColor = fill),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, border),
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                enabled = enabled,
-                role = Role.Switch,
-                onValueChange = onToggle
-            )
-            .semantics(mergeDescendants = true) { }
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = MvTouchTarget)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                Modifier.size(44.dp).clip(MvShape.Control).background(chip),
-                contentAlignment = Alignment.Center
-            ) { icon(iconTint) }
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
-            Spacer(Modifier.width(10.dp))
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-                enabled = enabled,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                    checkedTrackColor = accent
-                )
-            )
+        ManifestCard("OUTPUT FORMATS", ordinal = 2, selected = formats, total = 4) {
+            ManifestRow(
+                mark = { DrawnMark(R.drawable.ic_tech_jsonl) },
+                title = "JSONL",
+                output = "messages.jsonl",
+                checked = config.jsonl, enabled = enabled
+            ) { v -> onChange { it.copy(jsonl = v) } }
+            ManifestRow(
+                mark = { DrawnMark(R.drawable.ic_tech_sqlite) },
+                title = "SQLite",
+                output = "archive.db",
+                checked = config.sqlite, enabled = enabled
+            ) { v -> onChange { it.copy(sqlite = v) } }
+            ManifestRow(
+                mark = { DrawnMark(R.drawable.ic_tech_markdown) },
+                title = "Markdown",
+                output = "threads/*.md",
+                checked = config.markdown, enabled = enabled
+            ) { v -> onChange { it.copy(markdown = v) } }
+            ManifestRow(
+                mark = {
+                    Icon(
+                        MvIcons.Attachment,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                        tint = MvInk.Body
+                    )
+                },
+                title = "Attachments",
+                output = "media/",
+                checked = config.extractAttachments, enabled = enabled, rule = false
+            ) { v -> onChange { it.copy(extractAttachments = v) } }
         }
     }
 }
 
+/** One manifest group: a labelled, counted section rule over a single ruled plate. */
 @Composable
-private fun GroupLabel(text: String) {
-    MvSectionLabel(text, Modifier.padding(bottom = 6.dp))
-}
-
-/** Card headings are real headings — TalkBack can jump between them. */
-@Composable
-private fun CardTitle(text: String) {
-    Text(
-        text,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.semantics { heading() }
-    )
-}
-
-/**
- * Label + subtitle + switch. The row is one merged, toggleable control: the whole row
- * is the tap target (comfortably past 48dp) and a screen reader hears one switch named
- * by its title rather than three unrelated fragments.
- */
-@Composable
-private fun ToggleRow(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    enabled: Boolean,
-    onToggle: (Boolean) -> Unit
+private fun ManifestCard(
+    label: String,
+    ordinal: Int,
+    selected: Int,
+    total: Int,
+    rows: @Composable ColumnScope.() -> Unit
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .heightIn(min = MvTouchTarget)
-            .toggleable(
-                value = checked,
-                enabled = enabled,
-                role = Role.Switch,
-                onValueChange = onToggle
-            )
-            .semantics(mergeDescendants = true) { }
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-        // null: the row owns the click, so the switch isn't a second focusable target.
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary
-            )
+    MvCard {
+        MvSectionLabel(
+            label,
+            ordinal = ordinal,
+            rule = true,
+            trailing = { MvCatalogId("${MvOrdinal(selected, 2)} / ${MvOrdinal(total, 2)}") }
         )
+        MvPlate(content = rows)
     }
 }
+
+/**
+ * One manifest line: mark in the shared gutter, name, the artefact it produces in
+ * monospace, and the inclusion state as a word in a fixed column. The row keeps
+ * Role.Switch, the merged semantics and the 48dp floor it had as a card — the state cell
+ * is decorative to the semantics tree, exactly as the Switch it replaces was.
+ */
+@Composable
+private fun ManifestRow(
+    mark: @Composable () -> Unit,
+    title: String,
+    output: String?,
+    checked: Boolean,
+    enabled: Boolean,
+    rule: Boolean = true,
+    onToggle: (Boolean) -> Unit
+) {
+    Column(Modifier.fillMaxWidth()) {
+        MvStateToggle(
+            label = title,
+            checked = checked,
+            onCheckedChange = onToggle,
+            modifier = Modifier.padding(horizontal = MvSpace.Plate),
+            enabled = enabled,
+            supporting = output,
+            leading = mark,
+            onText = "INCLUDED",
+            offText = "OMITTED"
+        )
+        // Inset to the text column so the gutter runs uninterrupted down the plate.
+        if (rule) MvRule(inset = MvSpace.Plate + MvGutterWidth)
+    }
+}
+
+/** The literal string as the mark. A glyph is spent only where no word will do. */
+@Composable
+private fun TypographicMark(text: String) {
+    MvMono(text, style = MvType.MonoSmall, color = MvInk.Faint)
+}
+
+/** One of the authored technology marks, bare in the gutter — never on a tinted tile. */
+@Composable
+private fun DrawnMark(resId: Int) {
+    Icon(
+        painterResource(resId),
+        contentDescription = null,
+        modifier = Modifier.size(22.dp),
+        tint = MvInk.Body
+    )
+}
+
+// ── The run ──────────────────────────────────────────────────────────────────
 
 @Composable
 private fun ActionCard(
@@ -409,22 +334,33 @@ private fun ActionCard(
     onShareRun: () -> Unit,
     onCopyRun: () -> Unit
 ) {
-    SectionCard {
-        Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Section)) {
-            AnimatedContent(
-                targetState = state.phase,
-                transitionSpec = {
-                    (fadeIn(tween(240)) + slideInVertically(tween(240)) { it / 8 })
-                        .togetherWith(fadeOut(tween(140)))
-                },
-                label = "phase"
-            ) { phase ->
-                when (phase) {
-                    RunPhase.RUNNING -> RunningBody(state, onCancel)
-                    RunPhase.DONE -> DoneBody(state, canRun, onStart, onShareRun, onCopyRun)
-                    RunPhase.ERROR -> ErrorBody(state, canRun, onStart)
-                    RunPhase.IDLE -> IdleBody(state, canRun, onStart)
-                }
+    val partial = state.phase == RunPhase.DONE && state.attachmentFailures > 0
+    val (word, tone) = when {
+        state.phase == RunPhase.RUNNING -> "RUNNING" to MvTone.Active
+        state.phase == RunPhase.ERROR -> "FAILED" to MvTone.Failed
+        partial -> "PARTIAL" to MvTone.Flagged
+        state.phase == RunPhase.DONE -> "COMPLETE" to MvTone.Neutral
+        else -> "IDLE" to MvTone.Neutral
+    }
+
+    MvCard {
+        MvSectionLabel(
+            "RUN",
+            ordinal = 3,
+            rule = true,
+            trailing = { MvStamp(word, tone = tone) }
+        )
+        // Opacity only: a ledger changes state, it does not travel into place.
+        AnimatedContent(
+            targetState = state.phase,
+            transitionSpec = { fadeIn(MvMotion.settle()).togetherWith(fadeOut(MvMotion.snap())) },
+            label = "phase"
+        ) { phase ->
+            when (phase) {
+                RunPhase.RUNNING -> RunningBody(state, onCancel)
+                RunPhase.DONE -> DoneBody(state, canRun, onStart, onShareRun, onCopyRun)
+                RunPhase.ERROR -> ErrorBody(state, canRun, onStart)
+                RunPhase.IDLE -> IdleBody(state, canRun, onStart)
             }
         }
     }
@@ -433,211 +369,133 @@ private fun ActionCard(
 @Composable
 private fun IdleBody(state: UiState, canRun: Boolean, onStart: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-        StatusLine(state.statusLine)
+        MvFieldPlate {
+            MvFieldRow("STATUS", state.statusLine, rule = false)
+        }
+        // Metadata made visible before the run, not revealed only on success.
+        state.resultPath?.let { MvLocationPlate(it, label = "LAST LOCATION") }
         if (!canRun) RunHint()
-        MvPrimaryButton("Run export", enabled = canRun, onClick = onStart)
+        MvPrimaryButton("BEGIN RUN", enabled = canRun, onClick = onStart)
     }
 }
 
-/** Shown when the config can't produce anything, explaining the disabled Run button. */
+/** Why the run is unavailable, as a marginal note rather than a tinted sentence. */
 @Composable
 private fun RunHint() {
-    Text(
-        "Pick at least one source (SMS / MMS) and one output format.",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    )
+    MvNote("Select at least one source and at least one output format.")
 }
 
 @Composable
 private fun RunningBody(state: UiState, onCancel: () -> Unit) {
-    val target = if (state.total > 0) state.fraction else 0f
-    // Progress only ever moves forward, so it should ease out rather than run linear —
-    // it decelerates into each new figure instead of arriving flat.
-    val fraction by animateFloatAsState(target, tween(500, easing = FastOutSlowInEasing), label = "frac")
-    val processed by animateIntAsState(state.processed, tween(500, easing = FastOutSlowInEasing), label = "count")
-    val phase = state.statusLine.substringBefore(":").trim()
+    val measured = state.total > 0
+    val percent = (state.fraction.coerceIn(0f, 1f) * 100).toInt()
+    val stage = state.statusLine.substringBefore(":").trim().uppercase(Locale.US)
 
-    // One slow breath, shared by the dot and the sweep, so the whole card pulses
-    // together rather than as two unrelated animations.
-    val pulse = rememberInfiniteTransition(label = "run")
-    val breath by pulse.animateFloat(
-        initialValue = 0.35f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(900, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "breath"
-    )
-
-    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Section)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-            // A breathing dot says "alive" more quietly than a spinning ring, and it
-            // shares its rhythm with the bar below.
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .graphicsLayer { alpha = breath }
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-            )
-            // Phases change mid-run (Reading SMS, Reading MMS, Writing) — crossfade so a
-            // change of stage reads as a transition rather than a flicker.
-            Crossfade(targetState = phase, animationSpec = tween(260), label = "phase") { p ->
-                Text(p, style = MaterialTheme.typography.titleMedium)
+    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
+        MvMeter(
+            progress = if (measured) state.fraction else null,
+            contentDescription = if (measured) {
+                "Export progress: $percent percent"
+            } else {
+                "Export in progress"
             }
-            Spacer(Modifier.weight(1f))
-            if (state.total > 0) {
-                Text(
-                    "${(fraction * 100).toInt()}%",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
-        SweepingProgress(
-            fraction = fraction,
-            indeterminate = state.total <= 0,
-            description = if (state.total > 0)
-                "Export progress: ${(fraction * 100).toInt()} percent" else "Export in progress"
         )
-
-        if (state.total > 0) {
-            Text(
-                "$processed / ${state.total} messages",
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
+        MvFieldPlate {
+            // Stages change mid-run (Reading SMS, Reading MMS, Writing) — a crossfade
+            // reads as a display updating rather than a flicker.
+            Crossfade(targetState = stage, animationSpec = MvMotion.snap(), label = "stage") { s ->
+                MvFieldRow("STAGE", s)
+            }
+            if (measured) {
+                MvFieldRow("PROGRESS", "$percent%", valueStyle = MvType.MonoValue, accent = true)
+                // Shown, not eased: a figure that animates toward its true value briefly
+                // misreports the run on a tool whose whole promise is accuracy.
+                MvFieldRow(
+                    "PROCESSED",
+                    "${MvNum(state.processed)} / ${MvNum(state.total)}",
+                    rule = false
+                )
+            } else {
+                MvFieldRow("PROCESSED", MvNum(state.processed), rule = false)
+            }
         }
-        MvSecondaryButton("Cancel", Modifier.fillMaxWidth(), onClick = onCancel)
+        MvSecondaryButton("CANCEL", Modifier.fillMaxWidth(), onClick = onCancel)
     }
 }
 
 /**
- * The progress bar, with a gold highlight travelling along the filled length.
- *
- * A plain bar that only grows says how far along the run is, but says nothing while it
- * sits between updates — and the engine reports every 200 messages, so it sits still
- * often. The sweep keeps the bar visibly working in those gaps, which is the difference
- * between "running" and "possibly frozen" on a long export.
+ * A finished run as a receipt: hairline-ruled field rows with the figures aligned to one
+ * right edge, the condition already stamped on the section rule above, and the
+ * destination — the most archival fact the app knows — as a selectable field of record.
  */
 @Composable
-private fun SweepingProgress(fraction: Float, indeterminate: Boolean, description: String) {
-    val transition = rememberInfiniteTransition(label = "sweep")
-    val travel by transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
-        label = "travel"
-    )
-    val primary = MaterialTheme.colorScheme.primary
-
-    BoxWithConstraints(
-        Modifier
-            .fillMaxWidth()
-            .height(10.dp)
-            .clip(CircleShape)
-            .background(primary.copy(alpha = 0.14f))
-            .semantics { contentDescription = description }
-    ) {
-        val widthPx = constraints.maxWidth.toFloat()
-        // The highlight starts off the left edge and exits off the right.
-        val start = travel * (widthPx * 2f) - widthPx
-        Box(
-            Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(if (indeterminate) 1f else fraction.coerceIn(0f, 1f))
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(primary, Gold, primary),
-                        startX = start,
-                        endX = start + widthPx
-                    )
-                )
-        )
-    }
-}
-
-@Composable
-private fun DoneBody(state: UiState, canRun: Boolean, onStart: () -> Unit, onShareRun: () -> Unit, onCopyRun: () -> Unit) {
+private fun DoneBody(
+    state: UiState,
+    canRun: Boolean,
+    onStart: () -> Unit,
+    onShareRun: () -> Unit,
+    onCopyRun: () -> Unit
+) {
     val partial = state.attachmentFailures > 0
-    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Section)) {
-        Text(
-            // A run that could not extract media is not a clean success, and saying so
-            // only in the monospace summary line buried it. Name it in the headline.
-            if (partial) "Export complete — with missing files" else "Export complete",
-            style = MaterialTheme.typography.titleLarge,
-            color = if (partial) MaterialTheme.colorScheme.tertiary
-                else MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { heading() }
-        )
+    val throughput = state.doneSummary
+    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
+        MvFieldPlate {
+            MvFieldRow(
+                "MESSAGES",
+                MvNum(state.processed),
+                valueStyle = MvType.MonoValue,
+                accent = true
+            )
+            MvFieldRow(
+                "ATTACHMENTS",
+                MvNum(state.attachmentCount),
+                valueStyle = MvType.MonoValue,
+                rule = partial || throughput != null
+            )
+            if (partial) {
+                MvFieldRow(
+                    "MISSING",
+                    MvNum(state.attachmentFailures),
+                    valueStyle = MvType.MonoValue,
+                    rule = throughput != null
+                )
+            }
+            throughput?.let { MvFieldRow("THROUGHPUT", it, rule = false) }
+        }
         if (partial) {
-            Text(
+            // No hue: the PARTIAL stamp and this rule carry the condition in both schemes,
+            // which colorScheme.tertiary could not — it is Gold in dark and Slate in light.
+            MvNote(
                 "${state.attachmentFailures} attachment${if (state.attachmentFailures == 1) "" else "s"} " +
-                    "could not be read out of the MMS store, so ${if (state.attachmentFailures == 1) "it is" else "they are"} " +
+                    "could not be read out of the MMS store and ${if (state.attachmentFailures == 1) "is" else "are"} " +
                     "missing from this archive. The messages themselves are complete. " +
-                    "Running the export again often recovers them; if it doesn't, the " +
+                    "Running the export again often recovers them; if it does not, the " +
                     "original media is no longer on this device.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                label = "PARTIAL"
             )
         }
-        state.doneSummary?.let {
-            Text(it, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace)
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MvSpace.Inline)) {
-            MvStatPill("MESSAGES", "${state.processed}", Modifier.weight(1f), motif = Icons.Outlined.Forum)
-            MvStatPill("ATTACHMENTS", "${state.attachmentCount}", Modifier.weight(1f), motif = Icons.Outlined.AttachFile)
-        }
-        state.resultPath?.let {
-            Text(
-                "Saved to",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-            Text(
-                it,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-            )
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MvSpace.Inline)) {
+        state.resultPath?.let { MvLocationPlate(it) }
+        MvCardFooter {
             // Not "Share .zip": with Encrypt shared exports on this hands over a sealed
-            // .mvault, and a button naming a file type it doesn't produce is a lie.
-            MvSecondaryButton("Share export", Modifier.weight(1f), onClick = onShareRun)
-            MvSecondaryButton("Copy to folder", Modifier.weight(1f), onClick = onCopyRun)
+            // .mvault, and a label naming a file type it does not produce is a lie.
+            MvTextAction("SHARE EXPORT", onShareRun)
+            MvTextAction("COPY TO FOLDER", onCopyRun)
         }
         if (!canRun) RunHint()
-        MvPrimaryButton("Run again", enabled = canRun, onClick = onStart)
+        MvPrimaryButton("RUN AGAIN", enabled = canRun, onClick = onStart)
     }
 }
 
 @Composable
 private fun ErrorBody(state: UiState, canRun: Boolean, onStart: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-        Text(
-            "Export failed",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.semantics { heading() }
-        )
-        // The message is the error; the body stays on-surface so crimson marks the
-        // failure rather than shouting a whole paragraph of it.
-        Text(
-            state.errorMessage ?: "Something went wrong.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-        )
+        MvFailureNote(state.errorMessage ?: "The run stopped before it produced an archive.")
         if (!canRun) RunHint()
-        MvPrimaryButton("Try again", enabled = canRun, onClick = onStart)
+        MvPrimaryButton("RETRY", enabled = canRun, onClick = onStart)
     }
 }
 
-@Composable
-private fun StatusLine(text: String) {
-    Text(
-        text,
-        style = MaterialTheme.typography.bodyMedium,
-        fontFamily = FontFamily.Monospace,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    )
-}
+// The three private treatments that used to close this file — FieldPlate, DestinationField
+// and FailureNote — are gone. Every other tab had grown its own copy of each, at its own
+// padding and with its own label spelling, so all three now live in UiKit as MvFieldPlate,
+// MvLocationPlate and MvFailureNote and this screen composes them like everyone else.

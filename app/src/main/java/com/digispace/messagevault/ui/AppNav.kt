@@ -1,17 +1,18 @@
 /*
  * ✒ Metadata
- *     - Title: App Navigation (Message Vault Edition - v1.0)
+ *     - Title: App Navigation (Message Vault Edition - v1.2)
  *     - File Name: AppNav.kt
  *     - Relative Path: app/src/main/java/com/digispace/messagevault/ui/AppNav.kt
  *     - Artifact Type: library
- *     - Version: 1.1.0
- *     - Date: 2026-07-20
- *     - Update: Monday, July 20, 2026
+ *     - Version: 1.2.0
+ *     - Date: 2026-07-21
+ *     - Update: Tuesday, July 21, 2026
  *     - Author: Dennis 'dendogg' Smaltz
  *     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
  *     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
  *
  * ✒ Changelog:
+ *     - 1.2.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — The chrome was the one surface the charter pass missed: five tab agents each cleaned their own screen and none of them owned the frame around all five. Icons.Outlined.Forum — the two-speech-bubble glyph STYLE.md 8.1 bans by name, and the very glyph Home and Export had each just deleted — was still the Browse destination in the drawer, on every screen of the app. All five destination glyphs now come from MvIcons and are the same glyphs Home OPERATIONS uses for the same destinations, so a destination looks like itself wherever it is named. The selected drawer item drops its 14% translucent pill for the squared solid active cell STYLE.md 4.2 requires, the footer divider becomes MvRule, the export path becomes monospace at full ink instead of the faintest text in the sheet, the four eyeballed alphas become MvInk levels and the raw dp become MvSpace, and the theme glyph comes off colorScheme.tertiary, which is banned app-wide and was making that one icon the loudest thing in the drawer in dark mode. Style only.
  *     - 1.1.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Polish pass: destinations fade into each other instead of cutting, the top-bar title cross-fades with them, the drawer's section label uses the shared treatment, and the drawer items and footer theme toggle are labelled and sized for a thumb.
  *     - 1.0.2 (2026-07-20) [Anthropic - Claude Opus 4.8] — De-awkward the footer: drop the large three-cell theme block for a single compact theme-cycle icon on the version line; Settings › Appearance stays the canonical control. Add HOME as the start destination.
  *     - 1.0.1 (2026-07-20) [Anthropic - Claude Opus 4.8] — Drawer overhaul: brand-dot header, NAVIGATE section label, and a bottom-pinned footer carrying a one-tap theme quick-toggle, the live storage location, and version/signature.
@@ -52,20 +53,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Backup
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.Forum
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SettingsBrightness
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,7 +78,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -101,12 +89,22 @@ import com.digispace.messagevault.security.VaultSettings
 import com.digispace.messagevault.ui.theme.ThemeMode
 import kotlinx.coroutines.launch
 
+/**
+ * The five destinations.
+ *
+ * Every glyph here comes from [MvIcons], and each is the same glyph Home's OPERATIONS card
+ * already uses for the same destination — so a destination looks like itself wherever it
+ * is named. BROWSE in particular was `Icons.Outlined.Forum`: the two-speech-bubble
+ * conversation glyph, permanently banned by STYLE.md 8.1, sitting in the drawer on every
+ * screen of the app. Home and Export each deleted their own copy of it in the charter
+ * pass; this one survived because no screen owns the chrome.
+ */
 enum class Dest(val route: String, val label: String, val icon: ImageVector) {
-    HOME("home", "Home", Icons.Outlined.Home),
-    EXPORT("export", "Export", Icons.Outlined.Backup),
-    HISTORY("history", "History", Icons.Outlined.History),
-    BROWSE("browse", "Browse", Icons.Outlined.Forum),
-    SETTINGS("settings", "Settings", Icons.Outlined.Settings)
+    HOME("home", "Home", MvIcons.Inventory),
+    EXPORT("export", "Export", MvIcons.Extract),
+    HISTORY("history", "History", MvIcons.Index),
+    BROWSE("browse", "Browse", MvIcons.Records),
+    SETTINGS("settings", "Settings", MvIcons.Settings)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,8 +168,15 @@ fun AppRoot(
                                 scope.launch { drawerState.close() }
                                 navigateTo(d)
                             },
+                            // Squared, and a solid active cell — the exact treatment
+                            // MvModeStrip uses for the same job. STYLE.md 4.2 rules out a
+                            // translucent primary wash as a container: it was a 14% tint
+                            // on a pill, which is a consumer navigation drawer's signature.
+                            shape = MvShape.Plate,
                             colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                selectedTextColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
@@ -200,7 +205,7 @@ fun AppRoot(
                     },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Open menu")
+                            Icon(MvIcons.Menu, contentDescription = "Open menu")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -299,7 +304,7 @@ private fun DrawerHeader() {
             Text(
                 "digiSpace · SMS / MMS archival",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = MvInk.Body
             )
         }
     }
@@ -328,51 +333,56 @@ private fun DrawerFooter(
         }.getOrNull() ?: "1.0.0"
     }
     val (modeIcon, modeLabel) = when (themeMode) {
-        ThemeMode.SYSTEM -> Icons.Outlined.SettingsBrightness to "Auto"
-        ThemeMode.LIGHT -> Icons.Outlined.LightMode to "Light"
-        ThemeMode.DARK -> Icons.Outlined.DarkMode to "Dark"
+        ThemeMode.SYSTEM -> MvIcons.ThemeAuto to "Auto"
+        ThemeMode.LIGHT -> MvIcons.ThemeLight to "Light"
+        ThemeMode.DARK -> MvIcons.ThemeDark to "Dark"
     }
 
-    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
-        Spacer(Modifier.height(12.dp))
+    Column(Modifier.fillMaxWidth().padding(horizontal = MvSpace.ScreenH)) {
+        // The one hairline, at the one alpha, like every other division in the app.
+        MvRule()
+        Spacer(Modifier.height(MvSpace.Item))
 
         Row(
-            Modifier.padding(horizontal = 8.dp),
+            Modifier.padding(horizontal = MvSpace.Row),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(MvSpace.Row)
         ) {
             Icon(
-                Icons.Outlined.Folder,
+                MvIcons.Location,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                tint = MvInk.Faint
             )
-            Text(
+            // A path, so monospace and full ink — this was the faintest text in the
+            // drawer while being the most archival fact in it.
+            MvMono(
                 locationLabel,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                style = MvType.MonoSmall,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                modifier = Modifier.weight(1f, fill = false)
             )
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(MvSpace.Row))
         Row(
-            Modifier.fillMaxWidth().padding(start = 8.dp, bottom = 8.dp),
+            Modifier.fillMaxWidth().padding(start = MvSpace.Row, bottom = MvSpace.Row),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            MvMono(
                 "v$version · ︻デ═─── ✦ ✦ ✦",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                style = MvType.MonoSmall,
+                color = MvInk.Faint,
                 modifier = Modifier.weight(1f)
             )
             IconButton(onClick = { onThemeModeChange(nextThemeMode(themeMode)) }) {
                 Icon(
                     modeIcon,
                     contentDescription = "Theme: $modeLabel — tap to change",
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    // Was colorScheme.tertiary, which STYLE.md 3.1 bans app-wide: in the
+                    // light scheme it is the same slate as the drawer's own labels, and in
+                    // dark it is Gold, so this one glyph was the loudest thing in the sheet.
+                    tint = MvInk.Accent,
                     modifier = Modifier.size(20.dp)
                 )
             }

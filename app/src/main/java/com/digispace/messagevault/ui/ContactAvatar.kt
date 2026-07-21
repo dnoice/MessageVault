@@ -4,14 +4,15 @@
  *     - File Name: ContactAvatar.kt
  *     - Relative Path: app/src/main/java/com/digispace/messagevault/ui/ContactAvatar.kt
  *     - Artifact Type: library
- *     - Version: 1.0.0
- *     - Date: 2026-07-20
- *     - Update: Monday, July 20, 2026
+ *     - Version: 1.1.0
+ *     - Date: 2026-07-21
+ *     - Update: Tuesday, July 21, 2026
  *     - Author: Dennis 'dendogg' Smaltz
  *     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
  *     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
  *
  * ✒ Changelog:
+ *     - 1.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Both paths now render inside MvIdentityFrame: a square, hairline-bordered specimen plate rather than a circle crop. Per STYLE.md 8.4 the round identity mark is banned app-wide, and clipping a real contact photo to a circle made even the photo path read as a roster of people to talk to.
  *     - 1.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Initial: use the real contact photo when one exists, falling back to the generated abstract mark.
  *
  * ✒ Description:
@@ -26,7 +27,7 @@
  *     - PhoneLookup → PHOTO_THUMBNAIL_URI (list-sized) with PHOTO_URI as a fallback; thumbnails keep scrolling cheap.
  *     - Memoized per number, caching misses too, so a scrolling list never re-queries a number it already resolved.
  *     - Degrades quietly: READ_CONTACTS may be denied and a photo stream may be missing or corrupt — any failure becomes the generated mark, never an error.
- *     - Circle-cropped to match the generated mark exactly, so mixed lists stay visually uniform.
+ *     - Clipped to the same square identity plate as the generated mark, so mixed lists stay visually uniform.
  *
  * ✒ Other Important Information:
  *     - Dependencies: android.provider.ContactsContract; BitmapFactory; Jetpack Compose; AbstractAvatar.
@@ -41,8 +42,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.ContactsContract
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +50,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -128,14 +127,16 @@ fun ContactAvatar(
     LaunchedEffect(number) { photo = ContactPhotos.load(context, number) }
 
     val bitmap = photo
-    if (bitmap != null) {
-        Image(
-            bitmap = bitmap,
-            contentDescription = null,
-            modifier = modifier.size(size).clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-    } else {
-        AbstractAvatar(seed = seed, size = size, modifier = modifier)
+    MvIdentityFrame(size = size, modifier = modifier) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            AbstractAvatar(seed = seed, size = size)
+        }
     }
 }
