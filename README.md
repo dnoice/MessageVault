@@ -4,7 +4,7 @@
     - File Name: README.md
     - Relative Path: README.md
     - Artifact Type: docs
-    - Version: 3.1.0
+    - Version: 3.2.0
     - Date: 2026-07-21
     - Update: Tuesday, July 21, 2026
     - Author: Dennis 'dendogg' Smaltz
@@ -12,6 +12,14 @@
     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
 
 ✒ Changelog:
+    - 3.2.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Describes the app that now
+      exists rather than the one that did this morning. The screen table was still
+      promising a conversation list and thread bubbles; Browse is a ledger index over
+      transcript records, Export is a card per technology, Home leads on the accession.
+      Adds the section that states outright that this is an archive and is built to look
+      like one, naming the rules that keep it there — records over bubbles, specimen
+      plates over round avatars, monospace as the voice of the record, and contact
+      actions as a hand-off to the system rather than features of this app.
     - 3.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Leads with the hero plate and
       the Preserve / Browse / Seal line. Adds a Documentation table pointing at the
       architecture walkthrough, the style charter and the upgrade path. Repairs the two
@@ -111,16 +119,36 @@ Message Vault is a navigation-drawer app with five destinations.
 
 | Screen | What it does |
 | ------ | ------------ |
-| **Home** | Landing screen: last run's headline numbers, quick actions into Export / Browse / History, and where exports currently land. Reads only `metrics.json` headlines, never a message. |
-| **Export** | Pick sources and formats, start a run, watch live progress, see the results summary with Share / Copy actions. |
-| **History** | Every past run read back from its `metrics.json` — counts, throughput, date range — with re-Share, Copy, and guarded delete. |
-| **Browse** | Read the latest `archive.db` back: conversation list with avatars, thread bubbles, debounced full-text search, and long-press multi-select to copy or share messages as plain text. |
-| **Settings** | Storage access grant, storage usage and cache clearing, appearance (System / Light / Dark), the Vault switches, and About. |
+| **Home** | The front plate. States the condition of the holdings: the latest **accession** by its catalogue slug, a `COMPLETE` / `STALE` stamp, and its figures as a right-aligned manifest — then operations and the inventory roll-up. Reads only `metrics.json` headlines, never a message. |
+| **Export** | One card per option, each carrying the mark of the technology it writes. Start a run and watch a live meter, a phase crossfade and a record count; finish on a results manifest with Share / Copy. |
+| **History** | The run ledger: every past run read back from its `metrics.json` — counts, throughput, span — with re-Share, Copy, guarded delete, and tap-to-browse that archive. |
+| **Browse** | Reads an `archive.db` back as a corpus. A ledger index of threads opens a thread as full-width **transcript records**; a debounced query scans every body; long-press multi-selects records to copy or extract. |
+| **Settings** | Storage usage and cache clearing, the Vault switches, the default export configuration, notifications, appearance, and About — including *Share this app*. |
 
-Conversations get a face: a saved contact's photo where one exists, otherwise a
-deterministic generated mark derived from the number, drawn only from the locked
-digiSpace palette (navy, gold, slate, parchment). Crimson is reserved for genuine
-errors and never used for decoration, in either theme.
+### It is an archive, and it is built to look like one
+
+The one thing this app must never look like is a messenger. It cannot send,
+reply, compose, or call, and every screen is written so it never appears to.
+That is not left to taste — it is written down in
+[docs/STYLE.md](docs/STYLE.md) and applied uniformly:
+
+- **Transcript records, not chat bubbles.** Opposing left/right bubbles are the
+  single most recognisable messenger signature. A thread renders as full-width
+  records, direction carried by a rule in the gutter and a named speaker.
+- **Square identity plates, not round avatars.** A saved contact's photo where
+  one exists, otherwise a deterministic mark generated from the number. No gloss:
+  after the bubble, the glossy circle is the next most social-looking thing there
+  is. A specimen plate is how an archive depicts a subject.
+- **Monospace is the voice of the record** — figures, stamps, identifiers, paths.
+  Sans is the voice of language — message bodies and names.
+- **The data is the brightest ink; its label is the dimmest.**
+- **Contact actions are a hand-off.** Tapping a correspondent opens Android's own
+  contact card, which already offers call and message. Quick actions belong in
+  the contacts app, not bolted onto an archive.
+
+Colour is the locked digiSpace palette (navy, gold, slate, parchment), with
+crimson reserved for genuine failure and never used for decoration, in either
+theme.
 
 ## Where exports land
 

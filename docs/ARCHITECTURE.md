@@ -4,7 +4,7 @@
     - File Name: ARCHITECTURE.md
     - Relative Path: docs/ARCHITECTURE.md
     - Artifact Type: docs
-    - Version: 3.1.0
+    - Version: 3.2.0
     - Date: 2026-07-21
     - Update: Tuesday, July 21, 2026
     - Author: Dennis 'dendogg' Smaltz
@@ -12,6 +12,16 @@
     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
 
 ✒ Changelog:
+    - 3.2.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Brings the UI half of the
+      walkthrough up to the app that now exists. Stop 20 described five screens that
+      have since been rebuilt as an archival instrument, so it now says what each one
+      actually is — accession plate, technology cards, run ledger, transcript reader,
+      settings — and records the light-scheme trap where tertiary collapses into
+      secondary. Stop 21 explains why the identity marks are square and unglossed.
+      Stop 22 was documenting a kit of six primitives that is now forty across seven
+      groups, and had no mention of STYLE.md at all: it now names the charter as the
+      authority, tables the vocabulary, and states the four rules most easily broken by
+      a well-meaning edit.
     - 3.1.0 (2026-07-21) [Anthropic - Claude Opus 4.8] — Opens with the Export Machine
       plate, so the whole pipeline is legible in one frame before the walkthrough takes
       it at walking pace, with a note on how to read its solid primary flow against the
@@ -296,35 +306,99 @@ SYSTEM/LIGHT/DARK toggle, the live export location, and the version.
 
 ### Stop 20 — the five screens
 
-- `HomeScreen` — last-run hero from `RunHistory`, quick actions, storage card.
-- `ArchiveScreen` (Export) — sources/formats, run, animated progress, results.
-- `HistoryScreen` — past runs from `RunHistory`, with Share / Copy / guarded delete.
-- `BrowseScreen` — conversation list → thread bubbles → debounced search, plus
-  long-press multi-select to copy or share messages, via `ArchiveReader`.
-- `SettingsScreen` — storage access and usage, appearance, the Vault switches, About.
+Each destination is a view onto the same archive, and each is written to read as
+a **records instrument** rather than a phone app. That constraint is not a matter
+of taste — it is written down in [STYLE.md](STYLE.md) and enforced per screen.
+
+- `HomeScreen` — the front plate. It states the condition of the holdings rather
+  than greeting anyone: the latest **accession** by its `yyyyMMdd_HHmmss` catalogue
+  slug, a `COMPLETE` / `STALE` stamp, its measured figures as a right-aligned
+  manifest of `MvFieldRow`s, then the operations and the inventory roll-up.
+- `ArchiveScreen` (Export) — one card per option, each carrying the mark of the
+  technology it produces (`ic_tech_jsonl`, `ic_tech_sqlite`, `ic_tech_markdown`,
+  plus platform glyphs for SMS / MMS / attachments). A selected card carries the
+  accent in border, chip and fill, so the chosen set is legible at a glance. The
+  running state is a gold sweep along the meter, a phase crossfade and a breathing
+  dot — motion that exists because the engine only reports every 200 messages and
+  a still bar is indistinguishable from a frozen one.
+- `HistoryScreen` — the run ledger: an aggregate header, one record per past run
+  with its metrics, and Share / Copy / guarded delete.
+- `BrowseScreen` — the reader, and the screen that carried the most risk of the
+  app looking like something it is not. A **ledger index** (correspondent and
+  thread id left, record count and stamp right) opens a thread rendered as
+  full-width **transcript records** — never chat bubbles. Direction is carried by
+  a square rule in the gutter and a named speaker, the way a transcript attributes
+  a line. Tapping the correspondent hands off to the **system contact card**,
+  deliberately: an archive resolves who someone is; it does not become a client
+  that can contact them.
+- `SettingsScreen` — storage usage, the Vault switches, the default export
+  configuration, notifications, appearance, and About (which is also where
+  *Share this app* lives — the one "share" in the app that does not mean handing
+  someone your messages).
 
 `ui/theme` maps the locked digiSpace palette (navy / gold / slate / parchment)
 onto Material 3's roles in both light and dark, with crimson reserved for errors.
+One trap worth knowing before you reach for a colour: **in the light scheme
+`tertiary` and `secondary` are both slate**, so any design that distinguishes two
+things by that pair collapses to one colour in light mode. STYLE.md bans
+`tertiary` app-wide for exactly this reason.
 
 ### Stop 21 — the faces (`ui/AbstractAvatar.kt`, `ui/ContactAvatar.kt`)
 
 `AbstractAvatar` derives a deterministic generative mark from a seed (name or
-number) via an FNV-1a hash feeding an xorshift PRNG — same seed, same face,
+number) via an FNV-1a hash feeding an xorshift PRNG — same seed, same mark,
 forever, with no artwork stored anywhere and only palette colors used.
 `ContactAvatar` prefers the saved contact's photo from the **live** contacts
 database and falls back to the generated mark whenever there is no photo, no
-permission, or an unreadable stream.
+permission, or an unreadable stream. Because the photo comes from the live
+database rather than the archive, browsing a year-old export shows today's
+photos, and a contact deleted since the export quietly reverts to its mark.
 
-### Stop 22 — the shared design system (`ui/UiKit.kt`)
+Both render as **square specimen plates**, not circles, and the generated mark
+has no gloss pass. That is deliberate: after the chat bubble, the round glossy
+avatar is the most recognisable social-app signature there is. A specimen plate
+is how an archive depicts a subject; a glossy circle is how a social app depicts
+a friend.
 
-Every screen used to carry a private twin of the same card, section label, stat
-pill and primary button, so spacing and radii drifted apart as the app grew.
-`UiKit` holds the tokens (`MvSpace`, `MvShape`, the content/reader width caps and
-the 48dp touch-target constant) and the primitives built on them — `MvCard`,
-`MvSectionLabel`, `MvStatPill`, `MvPrimaryButton`, `MvSecondaryButton`, and the
-`MvLoadingState` / `MvEmptyState` / `MvErrorState` trio. Reach for these before
-writing a new surface; a screen that needs a shape the kit does not have is a
-signal to add it here rather than locally.
+### Stop 22 — the shared design system (`ui/UiKit.kt`) and its charter
+
+Every screen used to carry a private twin of the same card, label and button, so
+spacing and radii drifted apart as the app grew. `UiKit` is the single source of
+that vocabulary, and [STYLE.md](STYLE.md) is the written charter it implements.
+**Read the charter before adding to the kit**; it records not just the rules but
+why each one exists and which conflicts were resolved to get there.
+
+The governing test the charter sets: *would this element be at home on a catalogue
+card, a transcript page, or a bound register?* Three shapes are banned outright —
+the **bubble**, the gradient **lozenge**, and the round glossy **avatar**.
+
+The kit divides into tokens and primitives:
+
+| Group | What it holds |
+| --- | --- |
+| Tokens | `MvSpace`, `MvShape` (Card / Control / Plate / Mark), `MvAlpha` + `MvInk`, `MvType`, `MvMotion`, `MvDirection`, `MvIcons`, `MvGutterWidth`, the width caps and `MvTouchTarget` |
+| Surfaces | `MvCard`, `MvPlate`, `MvIdentityFrame` |
+| Rules | `MvRule`, `MvVerticalRule`, `MvDayRule`, `MvCardFooter`, `MvSectionLabel` |
+| Data | `MvFieldRow`, `MvStatPlate` / `MvStatCell`, `MvFigure`, `MvMono`, `MvCatalogId`, `MvPathText`, `MvNum` |
+| Status | `MvStamp` + `MvTone`, `MvNote`, `MvInlineAck` |
+| Controls | `MvStateToggle`, `MvSelectMark`, `MvModeStrip`, `MvQueryField`, `MvPrimaryButton`, `MvSecondaryButton`, `MvTextAction` |
+| Readouts | `MvMeter`, `MvMeasuring`, `MvConfirmDialog`, `MvReveal`, and the `MvLoadingState` / `MvEmptyState` / `MvErrorState` trio |
+
+Four rules carry most of the weight, and they are the ones most easily broken by
+a well-meaning edit:
+
+1. **Monospace is the voice of the record** — every figure, stamp, identifier,
+   path and field label. Sans is the voice of language — message bodies, names,
+   prose. Never a figure in sans; never a sentence in mono.
+2. **Data is the brightest ink, its label the dimmest.** `MvInk` quantises to
+   five values so this inversion holds everywhere instead of drifting.
+3. **Cards carry a hairline, never elevation.** A Material card rasterises the
+   same rounded rect three times — shadow, fill, clip — and at low contrast those
+   antialiased edges leave a visible ring traced inside every corner.
+4. **Motion is opacity only**, at `MvMotion.Snap` or `Settle`. No translation, no
+   stagger, no decorative movement.
+
+A screen that needs something the kit lacks should add it *here*, not locally.
 
 ### Stop 23 — the shade (`util/Notifications.kt`)
 
