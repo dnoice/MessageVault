@@ -38,9 +38,11 @@
 package com.digispace.messagevault.ui
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,9 +64,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -168,25 +177,71 @@ fun MvSectionLabel(text: String, modifier: Modifier = Modifier) {
 
 /** A headline number with its caption, on a tinted primary wash. */
 @Composable
-fun MvStatPill(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
+fun MvStatPill(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    motif: ImageVector? = null
+) {
+    // The motif eases in rather than being painted with the pill: arriving a beat after
+    // the number lets the figure land first and the decoration follow, which reads as
+    // deliberate. It grows from its own bottom-right corner so it feels like it is
+    // settling into place instead of being scaled from the middle of the card.
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val motifAlpha by animateFloatAsState(
+        // Deliberately faint. The label sits over this, and a watermark that competes
+        // with the text it decorates has stopped being decoration.
+        targetValue = if (shown) 0.09f else 0f,
+        animationSpec = tween(durationMillis = 650, delayMillis = 120),
+        label = "motifAlpha"
+    )
+    val motifScale by animateFloatAsState(
+        targetValue = if (shown) 1f else 0.82f,
+        animationSpec = tween(durationMillis = 650, delayMillis = 120),
+        label = "motifScale"
+    )
+
+    Box(
         modifier
             .clip(MvShape.Pill)
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
-            .padding(vertical = 14.dp, horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(
-            value,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.SemiBold
-        )
-        Text(
-            label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
+        if (motif != null) {
+            // Oversized and pushed past the corner so the pill's own clip crops it — a
+            // watermark that belongs to the shape rather than an icon sitting inside it.
+            Icon(
+                motif,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 22.dp, y = 18.dp)
+                    .size(72.dp)
+                    .graphicsLayer {
+                        alpha = motifAlpha
+                        scaleX = motifScale
+                        scaleY = motifScale
+                        transformOrigin = TransformOrigin(1f, 1f)
+                    }
+            )
+        }
+        Column(
+            Modifier.padding(vertical = 14.dp, horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                value,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
     }
 }
 

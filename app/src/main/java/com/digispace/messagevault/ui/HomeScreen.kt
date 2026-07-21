@@ -51,6 +51,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.History
@@ -187,8 +188,14 @@ private fun HeroCard(last: RunSummary?, onExport: () -> Unit, onOpenHistory: () 
             )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MvSpace.Inline)) {
-            MvStatPill("MESSAGES", "%,d".format(Locale.US, last.totalMessages), Modifier.weight(1f))
-            MvStatPill("ATTACHMENTS", "%,d".format(Locale.US, last.attachmentCount), Modifier.weight(1f))
+            MvStatPill(
+                "MESSAGES", "%,d".format(Locale.US, last.totalMessages), Modifier.weight(1f),
+                motif = Icons.Outlined.Forum
+            )
+            MvStatPill(
+                "ATTACHMENTS", "%,d".format(Locale.US, last.attachmentCount), Modifier.weight(1f),
+                motif = Icons.Outlined.AttachFile
+            )
         }
         val wall = if (last.wallHuman.isNotEmpty()) " · ${last.wallHuman}" else ""
         Text(

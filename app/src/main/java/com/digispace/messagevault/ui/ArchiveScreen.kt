@@ -58,6 +58,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AttachFile
+import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.PermMedia
 import androidx.compose.material.icons.outlined.Sms
 import androidx.compose.material3.Icon
@@ -515,8 +516,8 @@ private fun DoneBody(state: UiState, canRun: Boolean, onStart: () -> Unit, onSha
             Text(it, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MvSpace.Inline)) {
-            MvStatPill("MESSAGES", "${state.processed}", Modifier.weight(1f))
-            MvStatPill("ATTACHMENTS", "${state.attachmentCount}", Modifier.weight(1f))
+            MvStatPill("MESSAGES", "${state.processed}", Modifier.weight(1f), motif = Icons.Outlined.Forum)
+            MvStatPill("ATTACHMENTS", "${state.attachmentCount}", Modifier.weight(1f), motif = Icons.Outlined.AttachFile)
         }
         state.resultPath?.let {
             Text(
