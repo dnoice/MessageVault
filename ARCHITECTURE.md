@@ -2,7 +2,7 @@
 ✒ Metadata
     - Title: Architecture Walkthrough (Message Vault Edition - v3.0)
     - File Name: ARCHITECTURE.md
-    - Relative Path: ARCHITECTURE.md
+    - Relative Path: docs/ARCHITECTURE.md
     - Artifact Type: docs
     - Version: 3.0.0
     - Date: 2026-07-20
