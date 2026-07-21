@@ -43,7 +43,10 @@
  */
 package com.digispace.messagevault.ui
 
+import android.content.ContentUris
 import android.content.Intent
+import android.net.Uri
+import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -58,9 +61,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -396,11 +403,35 @@ private fun ThreadView(dbFile: File, conv: Conversation, onBack: () -> Unit) {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to conversations")
                 }
-                ContactAvatar(seed = conv.who, number = conv.address, size = AvatarHeaderSize)
-                Spacer(Modifier.width(10.dp))
-                Text(conv.who, style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // Tapping the correspondent hands off to the system contact card, which
+                // already carries call, text and everything else. Deliberately a hand-off
+                // rather than in-app actions: an archive resolves who someone is, it does
+                // not become a client that can contact them.
+                Row(
+                    Modifier
+                        .weight(1f)
+                        .clip(MvShape.Control)
+                        .clickable(enabled = !conv.address.isNullOrBlank()) {
+                            openContact(context, conv.address)
+                        }
+                        .padding(vertical = 4.dp, horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ContactAvatar(seed = conv.who, number = conv.address, size = AvatarHeaderSize)
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(conv.who, style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (!conv.address.isNullOrBlank()) {
+                            Text(
+                                "View contact",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -435,6 +466,7 @@ private fun ThreadView(dbFile: File, conv: Conversation, onBack: () -> Unit) {
                             val key = selectionKey(m)
                             Bubble(
                                 m = m,
+                                who = conv.who,
                                 selected = key in selectedKeys,
                                 onLongPress = {
                                     selecting = true
@@ -541,38 +573,79 @@ private fun SelectionBar(
 @Composable
 private fun Bubble(
     m: ArchivedMessage,
+    who: String,
     selected: Boolean,
     onLongPress: () -> Unit,
     onTap: () -> Unit
 ) {
     val outbound = m.direction == "OUTBOUND"
-    val bubbleColor =
-        if (outbound) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-        else MaterialTheme.colorScheme.surface
-    val shape = MvShape.Control
+    // A RECORD, not a chat bubble.
+    //
+    // Opposing left/right bubbles are the single most recognisable messenger signature,
+    // and this app reads an archive rather than carrying a conversation. Every entry is
+    // therefore full width, and direction is carried by a coloured rule in the gutter
+    // plus a named speaker — the way a transcript or a log attributes a line. It stays
+    // just as readable, and it stops the reader impersonating a client that can reply.
+    // primary vs secondary, NOT tertiary vs secondary: in the light scheme tertiary and
+    // secondary are both slate, so the two rules came out identical and direction was
+    // carried by the label alone. primary is navy in light and gold in dark, so the
+    // gutter actually distinguishes speakers in both themes.
+    val rule = if (outbound) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.secondary
+    val speaker = if (outbound) "ME" else who.uppercase()
     // The selection wash fades in and out — a hard flip on every tap reads as a glitch.
     val selectionWash by animateColorAsState(
-        if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+        if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
         else Color.Transparent,
         tween(180),
         label = "wash"
     )
     Row(
-        Modifier.fillMaxWidth().background(selectionWash),
-        horizontalArrangement = if (outbound) Arrangement.End else Arrangement.Start
+        Modifier
+            .fillMaxWidth()
+            .background(selectionWash)
+            .combinedClickable(onClick = onTap, onLongClick = onLongPress)
+            .padding(vertical = 8.dp)
     ) {
-        Column(
+        // Direction rule: the whole attribution, in 3dp.
+        Box(
             Modifier
-                .widthIn(max = 460.dp)
-                .clip(shape)
-                .background(bubbleColor)
-                .then(
-                    if (selected) Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, shape)
-                    else Modifier
+                .width(3.dp)
+                .heightIn(min = 28.dp)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(2.dp))
+                .background(if (selected) MaterialTheme.colorScheme.primary else rule)
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            // Attribution line: who, when, and what kind — the metadata a record keeps.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    speaker,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = rule,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
-                .combinedClickable(onClick = onTap, onLongClick = onLongPress)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-        ) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    Format.friendly(m.epochMillis),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+                if (m.kind == "MMS") {
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "MMS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                    )
+                }
+            }
+            Spacer(Modifier.height(3.dp))
             if (m.body.isNotBlank()) {
                 Text(m.body, style = MaterialTheme.typography.bodyMedium)
             }
@@ -597,17 +670,49 @@ private fun Bubble(
                 }
             }
             if (m.body.isBlank() && m.attachmentCount == 0 && m.kind == "MMS") {
-                Text("[MMS]", style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(
+                    "No text content",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
             }
-            Spacer(Modifier.height(3.dp))
-            Text(
-                Format.friendly(m.epochMillis),
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-            )
         }
+    }
+}
+
+/**
+ * Opens the system contact card for [number].
+ *
+ * A hand-off, not a feature this app implements: Android's contact sheet already offers
+ * call, message and everything else, in the app those belong to. Falls back to the
+ * dialer's "add contact" view for a number that isn't saved, so the tap always does
+ * something. Any failure is reported rather than silently swallowed.
+ */
+private fun openContact(context: android.content.Context, number: String?) {
+    if (number.isNullOrBlank()) return
+    val lookup = Uri.withAppendedPath(
+        ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number)
+    )
+    val contactId = runCatching {
+        context.contentResolver.query(
+            lookup, arrayOf(ContactsContract.PhoneLookup._ID), null, null, null
+        )?.use { if (it.moveToFirst()) it.getLong(0) else null }
+    }.getOrNull()
+
+    val intent = if (contactId != null) {
+        Intent(Intent.ACTION_VIEW).setData(
+            ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId)
+        )
+    } else {
+        // Not in the address book — offer to add it instead of dead-ending.
+        Intent(Intent.ACTION_INSERT_OR_EDIT).apply {
+            type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
+            putExtra(ContactsContract.Intents.Insert.PHONE, number)
+        }
+    }
+    runCatching { context.startActivity(intent) }.onFailure {
+        Toast.makeText(context, "No contacts app available.", Toast.LENGTH_SHORT).show()
     }
 }
 

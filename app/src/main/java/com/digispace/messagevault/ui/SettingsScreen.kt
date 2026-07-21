@@ -394,6 +394,29 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.labelSmall,
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.tertiary)
+            // Shares the project, never an archive. This is the one place in the app
+            // where "share" does not mean "hand someone your messages".
+            MvSecondaryButton(
+                text = "Share this app",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, "Message Vault")
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "Message Vault — a personal SMS/MMS archiver for Android. " +
+                                "Exports every message you own to JSONL, SQLite and Markdown, " +
+                                "with attachments, entirely on-device.\n\n" +
+                                "https://github.com/dnoice/MessageVault"
+                        )
+                    }
+                    runCatching { context.startActivity(Intent.createChooser(send, "Share Message Vault")) }
+                        .onFailure {
+                            Toast.makeText(context, "Nothing available to share with.", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            )
         }
     }
 
