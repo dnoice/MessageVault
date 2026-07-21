@@ -39,6 +39,7 @@ package com.digispace.messagevault.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -129,7 +130,15 @@ fun MvCard(
     Card(
         shape = MvShape.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        // No shadow. A Material card rasterises the same rounded rect three times —
+        // shadow, background fill, then clip — and with a surface this close in value to
+        // the page behind it those antialiased edges do not land on identical pixels,
+        // leaving a hairline ring traced inside every corner. A 2dp shadow was never
+        // going to read as lift at this contrast anyway; the ring was all that survived.
+        // A hairline border rasterises once, lands crisply at any radius, and separates
+        // the card honestly.
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)),
         modifier = if (onClick != null) {
             base.clickable(onClickLabel = contentDescription, onClick = onClick)
         } else {
@@ -290,7 +299,9 @@ fun MvErrorState(
     Card(
         shape = MvShape.Card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        // Same treatment as MvCard: no shadow, one crisp hairline. See MvCard.
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)),
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = MvContentWidth)
