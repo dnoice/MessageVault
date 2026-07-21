@@ -1,0 +1,46 @@
+# ✒ Metadata
+#     - Title: Git Attributes (Message Vault Edition - v1.0)
+#     - File Name: .gitattributes
+#     - Relative Path: .gitattributes
+#     - Artifact Type: config
+#     - Version: 1.0.0
+#     - Date: 2026-07-20
+#     - Update: Monday, July 20, 2026
+#     - Author: Dennis 'dendogg' Smaltz
+#     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+#     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+#
+# ✒ Changelog:
+#     - 1.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Initial: pin line endings so the
+#       Gradle wrapper survives a checkout on a machine with core.autocrlf enabled.
+#
+# ✒ Description:
+#     Line-ending policy. This repo was created on Windows, where git's autocrlf would
+#     otherwise hand out a CRLF `gradlew` — which no POSIX shell will execute — and a
+#     LF `gradlew.bat`. Both are pinned explicitly; binaries are marked so git never
+#     tries to translate them.
+#
+# ✒ Key Features:
+#     - `gradlew` and shell scripts forced to LF regardless of platform settings.
+#     - `gradlew.bat` forced to CRLF, the only form cmd.exe reliably parses.
+#     - Binary assets (png, jar, apk, mp4, keystores) marked binary — no diffing, no munging.
+#
+# ✒ Other Important Information:
+#     - Dependencies: git.
+#     - Compatible platforms: any git client.
+# ---------
+
+* text=auto
+
+gradlew    text eol=lf
+*.sh       text eol=lf
+*.bat      text eol=crlf
+
+*.png      binary
+*.jpg      binary
+*.mp4      binary
+*.jar      binary
+*.apk      binary
+*.aab      binary
+*.jks      binary
+*.keystore binary

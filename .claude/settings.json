@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(gradle:*)",
+      "Bash(java:*)",
+      "Bash(javac:*)",
+      "Bash(adb:*)",
+      "Bash(sdkmanager:*)",
+      "Bash(avdmanager:*)",
+      "Bash(keytool:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "PowerShell(.\\gradlew.bat:*)",
+      "PowerShell(./gradlew.bat:*)",
+      "PowerShell(adb:*)",
+      "PowerShell(Get-ChildItem:*)",
+      "PowerShell(Test-Path:*)",
+      "PowerShell(Get-Content:*)",
+      "Read(**)",
+      "Edit(**)",
+      "Write(**)",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

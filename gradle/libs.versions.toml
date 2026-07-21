@@ -1,0 +1,64 @@
+# ✒ Metadata
+#     - Title: Version Catalog (Message Vault Edition - v1.0)
+#     - File Name: libs.versions.toml
+#     - Relative Path: gradle/libs.versions.toml
+#     - Artifact Type: config
+#     - Version: 1.0.0
+#     - Date: 2026-06-22
+#     - Update: Monday, June 22, 2026
+#     - Author: Dennis 'dendogg' Smaltz
+#     - A.I. Acknowledgement: Anthropic - Claude Opus 4.8 (1M context)
+#     - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+#
+# ✒ Changelog:
+#     - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
+#
+# ✒ Description:
+#     The single source of truth for every version number and dependency in the
+#     project. Instead of scattering version strings across build files, you list
+#     them once here and reference them by name (libs.xxx) in the .kts files, so
+#     changing a version in one place updates the whole project.
+#
+# ✒ Key Features:
+#     - [versions] table: named version numbers (e.g. kotlin = "2.1.0").
+#     - [libraries] table: named libraries that point at a version via version.ref; referenced in build.gradle.kts as libs.androidx.core.ktx (dashes become dots).
+#     - [plugins] table: named Gradle plugins, used as alias(libs.plugins.xxx).
+#     - GUI-editable: Android Studio's "Project Structure" dialog can edit this file directly.
+#     - Upgrade-aware: the AGP Upgrade Assistant edits this file when moving to AGP 9.x.
+#
+# ✒ Other Important Information:
+#     - Dependencies: Gradle version catalog format consumed by the project's build.gradle.kts files; AGP / Kotlin / Compose / AndroidX coordinates.
+#     - Compatible platforms: Android (minSdk 29, compileSdk 35), JVM 21.
+# ---------
+[versions]
+agp = "8.13.2"
+kotlin = "2.1.0"
+coreKtx = "1.13.1"
+lifecycle = "2.8.7"
+activityCompose = "1.9.3"
+composeBom = "2024.12.01"
+coroutines = "1.9.0"
+navigationCompose = "2.8.5"
+biometric = "1.1.0"
+
+[libraries]
+androidx-core-ktx          = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-vmcompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-activity-compose   = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom        = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui                 = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics        = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling         = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-material3          = { group = "androidx.compose.material3", name = "material3" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-navigation-compose  = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-biometric           = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+kotlinx-coroutines-android  = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android      = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose      = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

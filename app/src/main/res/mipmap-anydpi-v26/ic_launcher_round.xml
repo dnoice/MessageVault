@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: Round Adaptive Launcher Icon (Message Vault Edition - v1.0)
+      - File Name: ic_launcher_round.xml
+      - Relative Path: app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+      - Artifact Type: config
+      - Version: 1.0.1
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
+      - 1.0.1 (2026-07-20) [Anthropic - Claude Opus 4.8] — Replaced the abbreviated ad-hoc header with the canonical ✒ Metadata block; no resource changes.
+
+  ✒ Description:
+      The round-mask variant of the adaptive icon, used by launchers that request a circular icon. Same two layers as ic_launcher.xml.
+
+  ✒ Key Features:
+      - Background layer bound to @color/ic_launcher_background (navy).
+      - Foreground layer bound to @mipmap/ic_launcher_foreground (the custom vault mark).
+      - Referenced from the manifest as android:roundIcon so circular-icon launchers pick it up automatically.
+
+  ✒ Other Important Information:
+      XML forbids double-hyphen sequences inside comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule instead of the Kotlin nine-hyphen rule. Keep this file in lockstep with ic_launcher.xml; divergence shows up as two different-looking icons across launchers.
+  ─────────
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

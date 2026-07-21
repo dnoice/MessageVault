@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: Adaptive Launcher Icon (Message Vault Edition - v1.0)
+      - File Name: ic_launcher.xml
+      - Relative Path: app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+      - Artifact Type: config
+      - Version: 1.0.1
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
+      - 1.0.1 (2026-07-20) [Anthropic - Claude Opus 4.8] — Replaced the abbreviated ad-hoc header with the canonical ✒ Metadata block; no resource changes.
+
+  ✒ Description:
+      The ADAPTIVE ICON definition (Android 8.0+/API 26 = the "v26"). It pairs a background layer + a foreground layer; the launcher masks them into the device's icon shape. mipmap (not drawable) is the launcher-icon convention.
+
+  ✒ Key Features:
+      - Background layer bound to @color/ic_launcher_background (navy).
+      - Foreground layer bound to @mipmap/ic_launcher_foreground (the custom vault mark).
+      - Density-independent: the anydpi-v26 qualifier lets the launcher composite and mask at any density.
+
+  ✒ Other Important Information:
+      XML forbids double-hyphen sequences inside comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule instead of the Kotlin nine-hyphen rule. Legacy pre-API-26 launchers fall back to the rasterized mipmap-*/ic_launcher.png assets.
+  ─────────
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

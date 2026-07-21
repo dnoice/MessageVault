@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: Launcher Icon Background Color (Message Vault Edition - v1.0)
+      - File Name: ic_launcher_background.xml
+      - Relative Path: app/src/main/res/values/ic_launcher_background.xml
+      - Artifact Type: config
+      - Version: 1.0.1
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
+      - 1.0.1 (2026-07-20) [Anthropic - Claude Opus 4.8] — Replaced the abbreviated ad-hoc header with the canonical ✒ Metadata block; no resource changes.
+
+  ✒ Description:
+      The navy background COLOR for the adaptive launcher icon, referenced by the adaptive-icon definitions in mipmap-anydpi-v26/.
+
+  ✒ Key Features:
+      - Single color resource, ic_launcher_background, kept isolated from the app theme palette.
+      - Deep navy #09132F so the gold foreground mark reads at small launcher sizes.
+
+  ✒ Other Important Information:
+      XML forbids double-hyphen sequences inside comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule instead of the Kotlin nine-hyphen rule. This value is icon-only; the app UI navy is #1B2A4A and lives in the theme, so do not merge the two.
+  ─────────
+-->
+<resources>
+    <color name="ic_launcher_background">#09132F</color>
+</resources>

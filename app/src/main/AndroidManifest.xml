@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+✒ Metadata
+    - Title: Android Manifest (Message Vault Edition - v1.0)
+    - File Name: AndroidManifest.xml
+    - Relative Path: app/src/main/AndroidManifest.xml
+    - Artifact Type: config
+    - Version: 1.0.1
+    - Date: 2026-06-22
+    - Update: Monday, June 22, 2026
+    - Author: Dennis 'dendogg' Smaltz
+    - A.I. Acknowledgement: Anthropic - Claude Opus 4.8 (1M context)
+    - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+✒ Changelog:
+    - 1.0.1 (2026-06-21) [Anthropic - Claude Opus 4.8 (1M context)] — Add MANAGE_EXTERNAL_STORAGE so exports can land in a browsable public folder.
+    - 1.0.0 (2026-06-17) [Anthropic - Claude Opus 4.8] — Initial scaffold + full-standard docstring.
+
+✒ Description:
+    The manifest is the app's "ID card + contract" that Android reads before
+    running any code: it declares the permissions the app needs, the components
+    it contains (Application, Activities, FileProvider), and how the system
+    launches it. Nothing here is optional boilerplate — Android refuses to grant
+    a permission or open a screen that isn't declared.
+
+✒ Key Features:
+    - uses-permission: READ_SMS (covers both SMS and MMS providers) plus optional READ_CONTACTS for number-to-name resolution; "dangerous" perms still require runtime grant in MainActivity.
+    - MANAGE_EXTERNAL_STORAGE: sideload-only All Files access so exports land in a browsable /sdcard/MessageVault/ folder visible to the Files app and OneDrive.
+    - application name=".MessageVaultApp": points Android at the Application subclass; the bootstrap android:theme prevents a white flash before Compose takes over.
+    - MAIN + LAUNCHER intent-filter on the exported MainActivity: registers the launcher icon and entry point.
+    - FileProvider: serves the zipped run to other apps over a content:// URI for Share.
+
+✒ Other Important Information:
+    - Dependencies: androidx.core.content.FileProvider; @xml/file_paths; @style/Theme.MessageVault; @mipmap/ic_launcher; @string/app_name.
+    - Compatible platforms: Android (minSdk 29, compileSdk 35), JVM 21.
+    - Play Store note: READ_SMS is a restricted permission, but this is a sideload-only personal tool, so Play Console policy never applies — permissions are granted on-device.
+─────────
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      READ_SMS covers reading both the SMS *and* MMS content providers.
+      READ_CONTACTS is optional — only used to resolve phone numbers to names.
+      No storage permission needed: exports land in app-specific external files
+      (getExternalFilesDir), which is world-pullable via file manager / adb.
+    -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!--
+      Personal SIDELOAD: All files access lets exports land in a browsable
+      /sdcard/MessageVault/ folder the Files app and OneDrive can actually see,
+      instead of the scoped-storage-hidden Android/data sandbox. Granted on-device
+      via Settings (see ExportLocation + MainActivity); never a Play concern here.
+    -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
+    <!--
+      Progress for long jobs (zipping a run with hundreds of attachments can take a
+      while). Runtime-granted on API 33+; denial only costs the status entry.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+      A long export must survive the user leaving the app. A foreground service keeps
+      the process alive for the run; "dataSync" is the type that matches archiving, and
+      API 34+ requires the matching typed permission alongside FOREGROUND_SERVICE.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <application
+        android:name=".MessageVaultApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MessageVault"
+        tools:targetApi="35">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MessageVault">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Runs the archive engine so a long export isn't killed when backgrounded. -->
+        <service
+            android:name=".service.ExportService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Serves the zipped run to other apps (Share) via a content:// URI. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
