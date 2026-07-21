@@ -72,9 +72,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.digispace.messagevault.ui.theme.Gold
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -190,9 +192,9 @@ fun MvStatPill(
     var shown by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { shown = true }
     val motifAlpha by animateFloatAsState(
-        // Deliberately faint. The label sits over this, and a watermark that competes
-        // with the text it decorates has stopped being decoration.
-        targetValue = if (shown) 0.09f else 0f,
+        // Faint enough to stay decoration, strong enough that the glyph is identifiable
+        // rather than a smudge — it sits in its own corner now, not under the label.
+        targetValue = if (shown) 0.18f else 0f,
         animationSpec = tween(durationMillis = 650, delayMillis = 120),
         label = "motifAlpha"
     )
@@ -205,24 +207,37 @@ fun MvStatPill(
     Box(
         modifier
             .clip(MvShape.Pill)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+            // A cool-to-warm wash rather than one flat tint: primary into gold, top-left
+            // to bottom-right, so the pill has somewhere to travel. The alpha falls as
+            // well as the hue turning, which keeps the gradient readable in dark mode —
+            // there primary IS gold, so hue alone would have nothing to say.
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        Gold.copy(alpha = 0.09f)
+                    )
+                )
+            )
     ) {
         if (motif != null) {
-            // Oversized and pushed past the corner so the pill's own clip crops it — a
-            // watermark that belongs to the shape rather than an icon sitting inside it.
+            // Top-right, not bottom-right. The label ("ATTACHMENTS") runs nearly the full
+            // width of the pill, so the bottom corner is the one place the glyph cannot go
+            // without being cropped into an unreadable fragment. The value above it is
+            // short, which leaves this corner genuinely free — the whole shape reads.
             Icon(
                 motif,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 22.dp, y = 18.dp)
-                    .size(72.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 6.dp, y = (-2).dp)
+                    .size(54.dp)
                     .graphicsLayer {
                         alpha = motifAlpha
                         scaleX = motifScale
                         scaleY = motifScale
-                        transformOrigin = TransformOrigin(1f, 1f)
+                        transformOrigin = TransformOrigin(1f, 0f)
                     }
             )
         }
