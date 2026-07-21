@@ -164,18 +164,16 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MvSpace.Section)
     ) {
-        SettingsCard("Storage access") {
-            Text(
-                if (hasAllFilesAccess) "Full access granted." else "Limited — exports save to app-private storage.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                "Saves to: $locationLabel",
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-            )
-            if (!hasAllFilesAccess) {
+        // A headline only while there is something to do about it. Granted access is a
+        // settled fact, not news, so it becomes a quiet line inside Storage usage below
+        // rather than the first thing the screen says.
+        if (!hasAllFilesAccess) {
+            SettingsCard("Storage access") {
+                Text(
+                    "Limited — exports save to app-private storage, where the Files app " +
+                        "and cloud sync can't reach them.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 MvPrimaryButton("Grant full access", onClick = onRequestAllFilesAccess)
             }
         }
@@ -213,6 +211,20 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+            // Where they land, and whether we can reach the browsable location — the
+            // demoted remains of the old "Storage access" headline.
+            Text(
+                locationLabel,
+                style = MaterialTheme.typography.labelSmall,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+            )
+            Text(
+                if (hasAllFilesAccess) "Full access granted"
+                else "Limited access — app-private storage",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            )
             // Share the width evenly so the longer label wraps inside its own button
             // instead of pushing the pair off a narrow screen.
             Row(
