@@ -51,8 +51,20 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import com.digispace.messagevault.ui.theme.Gold
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.width
@@ -440,19 +452,37 @@ private fun RunHint() {
 @Composable
 private fun RunningBody(state: UiState, onCancel: () -> Unit) {
     val target = if (state.total > 0) state.fraction else 0f
-    val fraction by animateFloatAsState(target, tween(450), label = "frac")
-    val processed by animateIntAsState(state.processed, tween(450), label = "count")
+    // Progress only ever moves forward, so it should ease out rather than run linear —
+    // it decelerates into each new figure instead of arriving flat.
+    val fraction by animateFloatAsState(target, tween(500, easing = FastOutSlowInEasing), label = "frac")
+    val processed by animateIntAsState(state.processed, tween(500, easing = FastOutSlowInEasing), label = "count")
+    val phase = state.statusLine.substringBefore(":").trim()
+
+    // One slow breath, shared by the dot and the sweep, so the whole card pulses
+    // together rather than as two unrelated animations.
+    val pulse = rememberInfiniteTransition(label = "run")
+    val breath by pulse.animateFloat(
+        initialValue = 0.35f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(900, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "breath"
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Section)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
-            CircularProgressIndicator(
-                Modifier.size(20.dp),
-                strokeWidth = 2.5.dp,
-                color = MaterialTheme.colorScheme.primary
+            // A breathing dot says "alive" more quietly than a spinning ring, and it
+            // shares its rhythm with the bar below.
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .graphicsLayer { alpha = breath }
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
             )
-            Text(
-                state.statusLine.substringBefore(":").trim(),
-                style = MaterialTheme.typography.titleMedium
-            )
+            // Phases change mid-run (Reading SMS, Reading MMS, Writing) — crossfade so a
+            // change of stage reads as a transition rather than a flicker.
+            Crossfade(targetState = phase, animationSpec = tween(260), label = "phase") { p ->
+                Text(p, style = MaterialTheme.typography.titleMedium)
+            }
             Spacer(Modifier.weight(1f))
             if (state.total > 0) {
                 Text(
@@ -462,29 +492,67 @@ private fun RunningBody(state: UiState, onCancel: () -> Unit) {
                 )
             }
         }
+
+        SweepingProgress(
+            fraction = fraction,
+            indeterminate = state.total <= 0,
+            description = if (state.total > 0)
+                "Export progress: ${(fraction * 100).toInt()} percent" else "Export in progress"
+        )
+
         if (state.total > 0) {
-            LinearProgressIndicator(
-                progress = { fraction },
-                modifier = Modifier
-                    .fillMaxWidth().height(8.dp).clip(CircleShape)
-                    .semantics {
-                        contentDescription = "Export progress: ${(fraction * 100).toInt()} percent"
-                    }
-            )
             Text(
                 "$processed / ${state.total} messages",
                 style = MaterialTheme.typography.bodySmall,
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
-        } else {
-            LinearProgressIndicator(
-                Modifier
-                    .fillMaxWidth().height(8.dp).clip(CircleShape)
-                    .semantics { contentDescription = "Export in progress" }
-            )
         }
         MvSecondaryButton("Cancel", Modifier.fillMaxWidth(), onClick = onCancel)
+    }
+}
+
+/**
+ * The progress bar, with a gold highlight travelling along the filled length.
+ *
+ * A plain bar that only grows says how far along the run is, but says nothing while it
+ * sits between updates — and the engine reports every 200 messages, so it sits still
+ * often. The sweep keeps the bar visibly working in those gaps, which is the difference
+ * between "running" and "possibly frozen" on a long export.
+ */
+@Composable
+private fun SweepingProgress(fraction: Float, indeterminate: Boolean, description: String) {
+    val transition = rememberInfiniteTransition(label = "sweep")
+    val travel by transition.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
+        label = "travel"
+    )
+    val primary = MaterialTheme.colorScheme.primary
+
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .height(10.dp)
+            .clip(CircleShape)
+            .background(primary.copy(alpha = 0.14f))
+            .semantics { contentDescription = description }
+    ) {
+        val widthPx = constraints.maxWidth.toFloat()
+        // The highlight starts off the left edge and exits off the right.
+        val start = travel * (widthPx * 2f) - widthPx
+        Box(
+            Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(if (indeterminate) 1f else fraction.coerceIn(0f, 1f))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(primary, Gold, primary),
+                        startX = start,
+                        endX = start + widthPx
+                    )
+                )
+        )
     }
 }
 
