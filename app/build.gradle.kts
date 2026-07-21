@@ -33,10 +33,23 @@
  *     - Compatible platforms: Android (minSdk 29, compileSdk 35), JVM 21.
  * ---------
  */
+// Explicit import: inside a Gradle Kotlin DSL script `java` resolves to the Java plugin
+// extension, which shadows the java.* package and makes java.util.Properties unresolvable.
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+// Release signing. keystore.properties is gitignored and carries the key's path and
+// passwords, so no secret ever reaches the repository. If it is absent — a fresh clone,
+// or a machine without the key — the release build stays unsigned instead of failing.
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.inputStream().use { stream -> keystoreProps.load(stream) }
 }
 
 android {
@@ -51,6 +64,17 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystoreProps.isNotEmpty()) {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             // Sideload target — this is the build you run on the Fold 6.
@@ -63,6 +87,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Signed only when the local keystore is present; otherwise this produces
+            // the unsigned APK that Android will refuse to install.
+            if (keystoreProps.isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
