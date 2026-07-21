@@ -52,7 +52,18 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AttachFile
+import androidx.compose.material.icons.outlined.PermMedia
+import androidx.compose.material.icons.outlined.Sms
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.digispace.messagevault.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -186,18 +197,129 @@ private fun ConfigCard(
     enabled: Boolean,
     onChange: ((ArchiveConfig) -> ArchiveConfig) -> Unit
 ) {
-    SectionCard {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            GroupLabel("SOURCES")
-            ToggleRow("SMS", "Text messages", config.includeSms, enabled) { v -> onChange { it.copy(includeSms = v) } }
-            ToggleRow("MMS", "Picture & group messages, with attachments", config.includeMms, enabled) { v -> onChange { it.copy(includeMms = v) } }
+    Column(verticalArrangement = Arrangement.spacedBy(MvSpace.Item)) {
+        GroupLabel("SOURCES")
+        OptionCard(
+            icon = { Icon(Icons.Outlined.Sms, null, Modifier.size(24.dp), tint = it) },
+            title = "SMS",
+            subtitle = "Text messages",
+            checked = config.includeSms, enabled = enabled
+        ) { v -> onChange { it.copy(includeSms = v) } }
+        OptionCard(
+            icon = { Icon(Icons.Outlined.PermMedia, null, Modifier.size(24.dp), tint = it) },
+            title = "MMS",
+            subtitle = "Picture & group messages, with attachments",
+            checked = config.includeMms, enabled = enabled
+        ) { v -> onChange { it.copy(includeMms = v) } }
 
-            Spacer(Modifier.height(14.dp))
-            GroupLabel("OUTPUT FORMATS")
-            ToggleRow("JSONL", "messages.jsonl — one object per line", config.jsonl, enabled) { v -> onChange { it.copy(jsonl = v) } }
-            ToggleRow("SQLite", "archive.db — queryable database", config.sqlite, enabled) { v -> onChange { it.copy(sqlite = v) } }
-            ToggleRow("Markdown", "One readable transcript per conversation", config.markdown, enabled) { v -> onChange { it.copy(markdown = v) } }
-            ToggleRow("Extract attachments", "Decode MMS media to real files", config.extractAttachments, enabled) { v -> onChange { it.copy(extractAttachments = v) } }
+        Spacer(Modifier.height(MvSpace.Item))
+        GroupLabel("OUTPUT FORMATS")
+        OptionCard(
+            icon = { Icon(painterResource(R.drawable.ic_tech_jsonl), null, Modifier.size(24.dp), tint = it) },
+            title = "JSONL",
+            subtitle = "messages.jsonl — one object per line",
+            checked = config.jsonl, enabled = enabled
+        ) { v -> onChange { it.copy(jsonl = v) } }
+        OptionCard(
+            icon = { Icon(painterResource(R.drawable.ic_tech_sqlite), null, Modifier.size(24.dp), tint = it) },
+            title = "SQLite",
+            subtitle = "archive.db — queryable database",
+            checked = config.sqlite, enabled = enabled
+        ) { v -> onChange { it.copy(sqlite = v) } }
+        OptionCard(
+            icon = { Icon(painterResource(R.drawable.ic_tech_markdown), null, Modifier.size(24.dp), tint = it) },
+            title = "Markdown",
+            subtitle = "One readable transcript per conversation",
+            checked = config.markdown, enabled = enabled
+        ) { v -> onChange { it.copy(markdown = v) } }
+        OptionCard(
+            icon = { Icon(Icons.Outlined.AttachFile, null, Modifier.size(24.dp), tint = it) },
+            title = "Extract attachments",
+            subtitle = "Decode MMS media to real files",
+            checked = config.extractAttachments, enabled = enabled
+        ) { v -> onChange { it.copy(extractAttachments = v) } }
+    }
+}
+
+/**
+ * One export option as its own card: technology mark, name, what it produces, and a
+ * switch. The whole card is a single toggleable control — comfortably past the touch
+ * target, and a screen reader hears one switch named by its title rather than a pile of
+ * loose fragments. A selected card carries the accent in its border, icon chip and tint,
+ * so the chosen set is legible at a glance instead of by reading six switch positions.
+ *
+ * @param icon receives the colour to tint with, which differs by selected state.
+ */
+@Composable
+private fun OptionCard(
+    icon: @Composable (Color) -> Unit,
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    val accent = MaterialTheme.colorScheme.primary
+    val border by animateColorAsState(
+        if (checked) accent.copy(alpha = 0.55f)
+        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
+        tween(220), label = "optionBorder"
+    )
+    val fill by animateColorAsState(
+        if (checked) accent.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface,
+        tween(220), label = "optionFill"
+    )
+    val chip by animateColorAsState(
+        if (checked) accent.copy(alpha = 0.14f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+        tween(220), label = "optionChip"
+    )
+    val iconTint = if (checked) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+
+    Card(
+        shape = MvShape.Card,
+        colors = CardDefaults.cardColors(containerColor = fill),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, border),
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Switch,
+                onValueChange = onToggle
+            )
+            .semantics(mergeDescendants = true) { }
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = MvTouchTarget)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier.size(44.dp).clip(MvShape.Control).background(chip),
+                contentAlignment = Alignment.Center
+            ) { icon(iconTint) }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                enabled = enabled,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = accent
+                )
+            )
         }
     }
 }

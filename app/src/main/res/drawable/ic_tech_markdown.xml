@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: Markdown Technology Mark (Message Vault Edition - v1.0)
+      - File Name: ic_tech_markdown.xml
+      - Relative Path: app/src/main/res/drawable/ic_tech_markdown.xml
+      - Artifact Type: config
+      - Version: 1.0.0
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Initial Markdown mark for the Markdown output option.
+
+  ✒ Description:
+      The Markdown mark — the familiar rounded frame enclosing an "M" and a down
+      arrow — shown on the Export screen's Markdown option card. The frame is a
+      stroke so it matches the weight of the Material outlined icons beside it, while
+      the M and arrow are solid so they stay legible at 24dp.
+
+  ✒ Key Features:
+      - 24dp on a 24-unit viewport, matching the platform icon metric.
+      - Stroked frame at 1.8 units with solid glyphs inside, for legibility at icon size.
+      - Pure white: the icon is tinted by the composable that draws it.
+
+  ✒ Other Important Information:
+      Referenced from ui/ArchiveScreen.kt. XML forbids double-hyphen sequences inside
+      comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule.
+  ─────────
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Rounded frame -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:pathData="M3.6,5.4H20.4A1.8,1.8 0 0 1 22.2,7.2V16.8A1.8,1.8 0 0 1 20.4,18.6H3.6A1.8,1.8 0 0 1 1.8,16.8V7.2A1.8,1.8 0 0 1 3.6,5.4Z" />
+    <!-- M -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4.6,15.6V8.4H6.5L8.6,11.2L10.7,8.4H12.6V15.6H10.7V11.3L8.6,14L6.5,11.3V15.6Z" />
+    <!-- Down arrow -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M16.6,15.9L13.5,12.1H15.4V8.4H17.8V12.1H19.7Z" />
+</vector>

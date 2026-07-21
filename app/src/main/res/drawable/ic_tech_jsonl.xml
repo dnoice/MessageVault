@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: JSONL Technology Mark (Message Vault Edition - v1.0)
+      - File Name: ic_tech_jsonl.xml
+      - Relative Path: app/src/main/res/drawable/ic_tech_jsonl.xml
+      - Artifact Type: config
+      - Version: 1.0.0
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Initial braces-and-lines mark for the JSONL output option.
+
+  ✒ Description:
+      The JSONL mark for the Export screen's JSONL option card: a pair of braces
+      wrapping three stacked lines, reading as "JSON objects, one per line" — which is
+      exactly what the exporter writes.
+
+  ✒ Key Features:
+      - 24dp on a 24-unit viewport, matching the platform icon metric.
+      - Stroke-only at 1.8 units, the Material outlined weight, so it sits level with the icons beside it.
+      - The three interior lines shorten downward, hinting at records rather than prose.
+      - Pure white: the icon is tinted by the composable that draws it.
+
+  ✒ Other Important Information:
+      Referenced from ui/ArchiveScreen.kt. XML forbids double-hyphen sequences inside
+      comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule.
+  ─────────
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Left brace -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8.2,4C6,4 6,5.6 6,7.2V9.4C6,10.6 5.2,11.2 4,11.2V12.8C5.2,12.8 6,13.4 6,14.6V16.8C6,18.4 6,20 8.2,20" />
+    <!-- Right brace -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M15.8,4C18,4 18,5.6 18,7.2V9.4C18,10.6 18.8,11.2 20,11.2V12.8C18.8,12.8 18,13.4 18,14.6V16.8C18,18.4 18,20 15.8,20" />
+    <!-- Three records -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M9.6,9.2H14.4M9.6,12H14.4M9.6,14.8H12.6" />
+</vector>

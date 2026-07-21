@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ✒ Metadata
+      - Title: SQLite Technology Mark (Message Vault Edition - v1.0)
+      - File Name: ic_tech_sqlite.xml
+      - Relative Path: app/src/main/res/drawable/ic_tech_sqlite.xml
+      - Artifact Type: config
+      - Version: 1.0.0
+      - Date: 2026-07-20
+      - Update: Monday, July 20, 2026
+      - Author: Dennis 'dendogg' Smaltz
+      - A.I. Acknowledgement: Anthropic - Claude Opus 4.8
+      - Signature: ︻デ═─── ✦ ✦ ✦ | Aim Twice, Shoot Once!
+
+  ✒ Changelog:
+      - 1.0.0 (2026-07-20) [Anthropic - Claude Opus 4.8] — Initial database-cylinder mark for the SQLite output option.
+
+  ✒ Description:
+      The stacked-cylinder database mark shown on the Export screen's SQLite option
+      card. Drawn as strokes rather than fills so it sits at the same visual weight as
+      the Material outlined icons beside it on the same screen.
+
+  ✒ Key Features:
+      - 24dp on a 24-unit viewport, matching the platform icon metric.
+      - Stroke-only (fillColor transparent) at 1.8 units, the Material outlined weight.
+      - Round caps and joins so the ellipses read smoothly at small sizes.
+      - Pure white: the icon is tinted by the composable that draws it.
+
+  ✒ Other Important Information:
+      Referenced from ui/ArchiveScreen.kt. XML forbids double-hyphen sequences inside
+      comments and AAPT2 hard-fails on them, so this header closes with a box-drawing rule.
+  ─────────
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Top ellipse -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M12,3C16.42,3 20,4.34 20,6C20,7.66 16.42,9 12,9C7.58,9 4,7.66 4,6C4,4.34 7.58,3 12,3Z" />
+    <!-- Body sides and base -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,6V18C4,19.66 7.58,21 12,21C16.42,21 20,19.66 20,18V6" />
+    <!-- Middle band -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,12C4,13.66 7.58,15 12,15C16.42,15 20,13.66 20,12" />
+</vector>
